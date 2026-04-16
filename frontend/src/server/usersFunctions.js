@@ -1,3 +1,5 @@
+import { getToken } from "./tokenFunction.js";
+
 export async function getAllUsers({ page, limit }) {
   const response = await fetch(
     `http://localhost:3001/api/users?page=${page}&limit=${limit}`,
@@ -31,7 +33,8 @@ export async function getUserById(id) {
 
 // const user = await getUserById(id);
 
-export async function updateUser({ id, email, password, name, token }) {
+export async function updateUser({ id, email, password, name }) {
+  const token = getToken();
   const response = await fetch(`http://localhost:3001/api/users/${id}`, {
     method: "PUT",
     headers: {
@@ -49,9 +52,10 @@ export async function updateUser({ id, email, password, name, token }) {
   return response.json();
 }
 
-// await updateUser({ id, email, password, name, token });
+// await updateUser({ id, email, password, name });
 
-export async function deleteUser({ id, token }) {
+export async function deleteUser({ id }) {
+  const token = getToken();
   const response = await fetch(`http://localhost:3001/api/users/${id}`, {
     method: "DELETE",
     headers: {
@@ -67,4 +71,4 @@ export async function deleteUser({ id, token }) {
   return true;
 }
 
-// await deleteUser({ id, token });
+// await deleteUser({ id });

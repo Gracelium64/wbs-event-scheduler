@@ -1,3 +1,5 @@
+import { getToken } from "./tokenFunction.js";
+
 export async function registerUser({ email, password, name }) {
   const response = await fetch("http://localhost:3001/api/users", {
     method: "POST",
@@ -39,12 +41,12 @@ export async function loginUser({ email, password }) {
 
   return response.json();
 }
-// await loginUser({
-//   email: "test@test.com",
-//   password: "password",
-// });
 
-export async function getLoggedUser(token) {
+// const { token } = await loginUser({ email, password });
+// localStorage.setItem("token", token);
+
+export async function getLoggedUser() {
+  const token = getToken();
   const response = await fetch("http://localhost:3001/api/auth/profile", {
     method: "GET",
     headers: {
@@ -60,5 +62,8 @@ export async function getLoggedUser(token) {
   return response.json();
 }
 
-// const { token } = await loginUser({ email, password });
-// const loggedUser = await getLoggedUser(token);
+// const loggedUser = await getLoggedUser();
+
+export function logoutUser() {
+  localStorage.removeItem("token");
+}
