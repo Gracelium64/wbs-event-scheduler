@@ -1,8 +1,9 @@
 import { getToken } from "./tokenFunction.js";
+import { API_BASE_URL } from "./config.js";
 
 export async function getAllUsers({ page, limit }) {
   const response = await fetch(
-    `http://localhost:3001/api/users?page=${page}&limit=${limit}`,
+    `${API_BASE_URL}/users?page=${page}&limit=${limit}`,
     {
       method: "GET",
     },
@@ -19,7 +20,7 @@ export async function getAllUsers({ page, limit }) {
 // const users = await getAllUsers({ page: 1, limit: 10 });
 
 export async function getUserById(id) {
-  const response = await fetch(`http://localhost:3001/api/users/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/users/${id}`, {
     method: "GET",
   });
 
@@ -35,7 +36,7 @@ export async function getUserById(id) {
 
 export async function updateUser({ id, email, password, name }) {
   const token = getToken();
-  const response = await fetch(`http://localhost:3001/api/users/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/users/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -56,7 +57,7 @@ export async function updateUser({ id, email, password, name }) {
 
 export async function deleteUser({ id }) {
   const token = getToken();
-  const response = await fetch(`http://localhost:3001/api/users/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/users/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,

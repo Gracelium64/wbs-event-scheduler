@@ -2,10 +2,11 @@
 // 2026-04-16T14:30:00.000Z
 
 import { getToken } from "./tokenFunction.js";
+import { API_BASE_URL } from "./config.js";
 
 export async function addEvent({ title, description, date, location }) {
   const token = getToken();
-  const response = await fetch("http://localhost:3001/api/events", {
+  const response = await fetch(`${API_BASE_URL}/events`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -26,7 +27,7 @@ export async function addEvent({ title, description, date, location }) {
 
 export async function getAllEvents({ page, limit }) {
   const response = await fetch(
-    `http://localhost:3001/api/events?page=${page}&limit=${limit}`,
+    `${API_BASE_URL}/events?page=${page}&limit=${limit}`,
     {
       method: "GET",
     },
@@ -43,7 +44,7 @@ export async function getAllEvents({ page, limit }) {
 // const events = await getAllEvents({ page, limit });
 
 export async function getEventById(id) {
-  const response = await fetch(`http://localhost:3001/api/events/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "GET",
   });
 
@@ -59,7 +60,7 @@ export async function getEventById(id) {
 
 export async function updateEvent({ id, title, description, date, location }) {
   const token = getToken();
-  const response = await fetch(`http://localhost:3001/api/events/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -80,7 +81,7 @@ export async function updateEvent({ id, title, description, date, location }) {
 
 export async function deleteEvent({ id }) {
   const token = getToken();
-  const response = await fetch(`http://localhost:3001/api/events/${id}`, {
+  const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -98,7 +99,7 @@ export async function deleteEvent({ id }) {
 // await deleteEvent({ id });
 
 export async function getUpcomingEvents() {
-  const response = await fetch("http://localhost:3001/api/events/upcoming", {
+  const response = await fetch(`${API_BASE_URL}/events/upcoming`, {
     method: "GET",
   });
 
