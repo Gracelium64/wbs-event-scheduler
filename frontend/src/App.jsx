@@ -3,42 +3,35 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import { Home, About, NotFound, Register, CreteEvent, LogIn } from "./pages";
 import { Navigate, Outlet } from "react-router-dom";
-import { useState } from "react";
+import { AuthProvider } from "./context/AuthContext";
+import { useAuth } from "./context/useAuth";
 
-const ProtectedRoute = ({ isLoggedIn }) => {
+const ProtectedRoute = () => {
+  const { isLoggedIn } = useAuth();
   return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  // const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
 
   return (
     <>
-      <Router>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <MainLayout
-                isLoggedIn={isLoggedIn}
-                setIsLoggedIn={setIsLoggedIn}
-              />
-            }
-          >
-            <Route index element={<Home />} />
-            <Route
-              path="login"
-              element={<LogIn setIsLoggedIn={setIsLoggedIn} />}
-            />
-            <Route path="register" element={<Register />} />
-            <Route path="about" element={<About />} />
-            <Route path="*" element={<NotFound />} />
-            <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />}>
-              <Route path="createEvent" element={<CreteEvent />} />
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<Home />} />
+              <Route path="login" element={<LogIn />} />
+              <Route path="register" element={<Register />} />
+              <Route path="about" element={<About />} />
+              <Route path="*" element={<NotFound />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="createEvent" element={<CreteEvent />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
-      </Router>
+          </Routes>
+        </Router>
+      </AuthProvider>
     </>
   );
 }

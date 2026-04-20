@@ -1,7 +1,9 @@
 import { logoutUser } from "../server/authFunctions";
 import { useNavigate } from "react-router";
+import { useAuth } from "../context/useAuth";
 
-const NavBar = ({ isLoggedIn, setIsLoggedIn }) => {
+const NavBar = () => {
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   function handleLogout() {

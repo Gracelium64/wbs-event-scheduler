@@ -42,11 +42,11 @@ export async function loginUser({ email, password }) {
 
   return response.json();
 }
-// function handleLogIn() {
+// function handleLogIn({ email, password }) {
 //   const { token } = await loginUser({ email, password });
 //   localStorage.setItem("token", token);
 //   setIsLoggedIn(true);
-//   navigate('/home');
+//   navigate('/');
 // }
 
 export async function getLoggedUser() {
