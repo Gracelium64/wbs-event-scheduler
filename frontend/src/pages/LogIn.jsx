@@ -53,10 +53,10 @@ const LogIn = () => {
           onSubmit={handleLogIn}
           className="rounded-xl p-6 flex flex-col items-center justify-center gap-2"
         >
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col">
             {" "}
-            <div className="flex flex-row items-center">
-              <label className="block mb-4">Email: </label>
+            <div className="flex flex-row ">
+              <label className="block mb-4 mt-2">Email: </label>
               <input
                 type="email"
                 name="email"
@@ -70,9 +70,9 @@ const LogIn = () => {
             )}
           </div>
 
-          <div className="flex flex-col items-start">
-            <div className="flex flex-row items-center">
-              <label className="block mb-4">Password: </label>
+          <div className="flex flex-col">
+            <div className="flex flex-row">
+              <label className="block mb-4 mt-2">Password: </label>
               <input
                 type="password"
                 name="password"

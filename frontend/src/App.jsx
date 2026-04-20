@@ -38,6 +38,5 @@ function App() {
 
 export default App;
 
-//todo: login page
 //todo: register page
 //todo: create event component (backend expects ISO date string like: 2026-04-16T14:30:00.000Z)
