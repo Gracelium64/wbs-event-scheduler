@@ -7,9 +7,9 @@ const NavBar = () => {
   const navigate = useNavigate();
 
   function handleLogout() {
+    navigate("/");
     logoutUser();
     setIsLoggedIn(false);
-    navigate("/");
   }
 
   return (

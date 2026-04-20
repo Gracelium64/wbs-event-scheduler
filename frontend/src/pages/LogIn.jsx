@@ -97,7 +97,7 @@ const LogIn = () => {
         <h1 className="m-4">No user yet?</h1>
         <button
           onClick={() => navigate("/register")}
-          className="border rounded  p-1 hover:bg-purple-900 transition-colors duration-300 ease-in-out"
+          className="px-4 py-2 border rounded  p-1 hover:bg-purple-900 transition-colors duration-300 ease-in-out"
         >
           Register
         </button>
