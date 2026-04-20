@@ -11,6 +11,7 @@ const Register = () => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [nameError, setNameError] = useState("");
+  const [serverError, setServerError] = useState("");
 
   async function handleRegister(e) {
     e.preventDefault();
@@ -44,8 +45,12 @@ const Register = () => {
 
     if (!valid) return;
 
-    await registerUser({ email, password, name });
-    navigate("/login");
+    try {
+      await registerUser({ email, password, name });
+      navigate("/login");
+    } catch (error) {
+      setServerError(error.message);
+    }
   }
 
   return (
@@ -66,7 +71,7 @@ const Register = () => {
                 name="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className={`mb-1 p-2 rounded border ml-10 ${emailError ? "border-red-500" : ""}`}
+                className={`mb-1 p-2 rounded border ml-10 ${nameError ? "border-red-500" : ""}`}
               />
             </div>
             {nameError && (
@@ -106,6 +111,11 @@ const Register = () => {
               <p className="text-red-400 text-xs ml-2 mb-2">{passwordError}</p>
             )}
           </div>
+          {serverError && (
+            <p className="text-red-400 text-sm text-center mb-2">
+              {serverError}
+            </p>
+          )}
           <button
             type="submit"
             className="px-4 py-2 rounded border mt-4  hover:bg-purple-900 transition-colors duration-300 ease-in-out"

@@ -11,6 +11,7 @@ const LogIn = () => {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [serverError, setServerError] = useState("");
 
   async function handleLogIn(e) {
     e.preventDefault();
@@ -38,10 +39,16 @@ const LogIn = () => {
 
     if (!valid) return;
 
-    const { token } = await loginUser({ email, password });
-    localStorage.setItem("token", token);
-    setIsLoggedIn(true);
-    navigate("/");
+    try {
+      const { token } = await loginUser({ email, password });
+      localStorage.setItem("token", token);
+      setIsLoggedIn(true);
+      navigate("/");
+    } catch {
+      setServerError(
+        "User or password don't match (have fun figuring which one out)",
+      );
+    }
   }
 
   return (
@@ -85,12 +92,18 @@ const LogIn = () => {
               <p className="text-red-400 text-xs ml-2 mb-2">{passwordError}</p>
             )}
           </div>
+
           <button
             type="submit"
             className="px-4 py-2 rounded border mt-4  hover:bg-purple-900 transition-colors duration-300 ease-in-out"
           >
             Log In
           </button>
+          {serverError && (
+            <p className="text-red-400 text-sm text-center mb-2">
+              {serverError}
+            </p>
+          )}
         </form>
       </div>
       <div className="flex flex-col justify-center items-center gap-2 p-4">
