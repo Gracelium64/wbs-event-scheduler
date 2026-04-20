@@ -1,74 +1,93 @@
-import { getToken } from "./tokenFunction.js";
-import { API_BASE_URL } from "./config.js";
+import { shadowClient } from "./shadowClient.js";
+
+const USERS_COLLECTION = "users";
+
+function isAdmin() {
+  try {
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    return user?.role === "admin";
+  } catch {
+    return false;
+  }
+}
+
+function sqlRowToUser(row) {
+  return {
+    id: row.id,
+    email: row.email,
+    role: row.role,
+    createdAt: new Date(row.created_at * 1000).toISOString(),
+    updatedAt: new Date(row.updated_at * 1000).toISOString(),
+  };
+}
 
 export async function getAllUsers({ page, limit }) {
-  const response = await fetch(
-    `${API_BASE_URL}/users?page=${page}&limit=${limit}`,
-    {
-      method: "GET",
-    },
-  );
+  const offset = (page - 1) * limit;
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Nope. Nope nope nope");
+  if (isAdmin()) {
+    const result = await shadowClient.executeAdminSql(
+      `SELECT id, email, role, created_at, updated_at
+       FROM users
+       LIMIT ? OFFSET ?`,
+      { params: [limit, offset] },
+    );
+    const rows = result.data[0]?.rows ?? [];
+    return {
+      success: result.success,
+      data: rows.map(sqlRowToUser),
+      pagination: { limit, offset, count: rows.length },
+    };
   }
 
-  return response.json();
+  return shadowClient.listDocuments(USERS_COLLECTION, { limit, offset });
 }
 
 // const users = await getAllUsers({ page: 1, limit: 10 });
 
 export async function getUserById(id) {
-  const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-    method: "GET",
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "No user found");
+  if (isAdmin()) {
+    const result = await shadowClient.executeAdminSql(
+      `SELECT id, email, role, created_at, updated_at FROM users WHERE id = ?`,
+      { params: [id] },
+    );
+    const row = result.data[0]?.rows[0];
+    if (!row) throw new Error("User not found");
+    return sqlRowToUser(row);
   }
 
-  return response.json();
+  return shadowClient.getDocument(USERS_COLLECTION, id);
 }
 
 // const user = await getUserById(id);
 
 export async function updateUser({ id, email, password, name }) {
-  const token = getToken();
-  const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ email, password, name }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Updating user details failed");
+  // Password is excluded from the SQL path: updating it via raw SQL would
+  // bypass the server's bcrypt hashing. Route through the document API instead.
+  if (isAdmin() && !password) {
+    const now = Math.floor(Date.now() / 1000);
+    await shadowClient.executeAdminSql(
+      `UPDATE users SET email = ?, updated_at = ? WHERE id = ?`,
+      { params: [email, now, id] },
+    );
+    return getUserById(id);
   }
 
-  return response.json();
+  return shadowClient.updateDocument(USERS_COLLECTION, id, {
+    data: { email, password, name },
+  });
 }
 
 // await updateUser({ id, email, password, name });
 
 export async function deleteUser({ id }) {
-  const token = getToken();
-  const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "User deletion failed");
+  if (isAdmin()) {
+    await shadowClient.executeAdminSql(`DELETE FROM users WHERE id = ?`, {
+      params: [id],
+    });
+    return true;
   }
 
+  await shadowClient.deleteDocument(USERS_COLLECTION, id);
   return true;
 }
 

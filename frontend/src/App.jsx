@@ -5,6 +5,7 @@ import { Home, About, NotFound, Register, CreteEvent, LogIn } from "./pages";
 import { Navigate, Outlet } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/useAuth";
+import { ShadowAppProvider } from "@shadow-app/react-sdk";
 
 const ProtectedRoute = () => {
   const { isLoggedIn } = useAuth();
@@ -12,26 +13,38 @@ const ProtectedRoute = () => {
 };
 
 function App() {
-  // const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
-
   return (
     <>
-      <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<Home />} />
-              <Route path="login" element={<LogIn />} />
-              <Route path="register" element={<Register />} />
-              <Route path="about" element={<About />} />
-              <Route path="*" element={<NotFound />} />
-              <Route element={<ProtectedRoute />}>
-                <Route path="createEvent" element={<CreteEvent />} />
+      <ShadowAppProvider
+        config={{
+          baseURL:
+            import.meta.env.VITE_SHADOW_APP_BASE_URL || "http://localhost:8080",
+          onTokenRefresh: (token) => {
+            localStorage.setItem("token", token);
+          },
+          onAuthError: () => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+          },
+        }}
+      >
+        <AuthProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<MainLayout />}>
+                <Route index element={<Home />} />
+                <Route path="login" element={<LogIn />} />
+                <Route path="register" element={<Register />} />
+                <Route path="about" element={<About />} />
+                <Route path="*" element={<NotFound />} />
+                <Route element={<ProtectedRoute />}>
+                  <Route path="createEvent" element={<CreteEvent />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
-        </Router>
-      </AuthProvider>
+            </Routes>
+          </Router>
+        </AuthProvider>
+      </ShadowAppProvider>
     </>
   );
 }

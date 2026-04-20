@@ -1,21 +1,13 @@
-import { getToken } from "./tokenFunction.js";
-import { API_BASE_URL } from "./config.js";
+import { shadowClient } from "./shadowClient.js";
 
 export async function registerUser({ email, password, name }) {
-  const response = await fetch(`${API_BASE_URL}/users`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password, name }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Registration failed");
-  }
-
-  return response.json();
+  const response = await shadowClient.signup({ email, password });
+  const { id, email: userEmail, role } = response.data;
+  localStorage.setItem(
+    "user",
+    JSON.stringify({ id, email: userEmail, role, name }),
+  );
+  return response;
 }
 // await registerUser({
 //   email: "test@test.com",
@@ -24,52 +16,29 @@ export async function registerUser({ email, password, name }) {
 // });
 
 export async function loginUser({ email, password }) {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(
-      error.message ||
-        "User or password don't match (have fun figuring which one out)",
-    );
-  }
-
-  return response.json();
+  const response = await shadowClient.login({ email, password });
+  const { id, email: userEmail, role } = response.data;
+  localStorage.setItem("user", JSON.stringify({ id, email: userEmail, role }));
+  return response;
 }
 // function handleLogIn({ email, password }) {
-//   const { token } = await loginUser({ email, password });
-//   localStorage.setItem("token", token);
+//   await loginUser({ email, password });
 //   setIsLoggedIn(true);
 //   navigate('/');
 // }
 
-export async function getLoggedUser() {
-  const token = getToken();
-  const response = await fetch(`${API_BASE_URL}/auth/profile`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "No logged in user found");
-  }
-
-  return response.json();
+export function getLoggedUser() {
+  const user = localStorage.getItem("user");
+  if (!user) throw new Error("No logged in user found");
+  return JSON.parse(user);
 }
 
-// const loggedUser = await getLoggedUser();
+// const loggedUser = getLoggedUser();
 
 export function logoutUser() {
+  shadowClient.logout();
   localStorage.removeItem("token");
+  localStorage.removeItem("user");
 }
 
 // function handleLogout() {

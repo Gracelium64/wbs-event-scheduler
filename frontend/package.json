@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@shadow-app/react-sdk": "file:../../../../../../ShadowApp/dartBackendServer/react_sdk",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-router": "^7.14.0"
