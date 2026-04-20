@@ -40,7 +40,8 @@ const LogIn = () => {
     if (!valid) return;
 
     try {
-      const { token } = await loginUser({ email, password });
+      const response = await loginUser({ email, password });
+      const token = response.data.token;
       localStorage.setItem("token", token);
       setIsLoggedIn(true);
       navigate("/");
