@@ -1,10 +1,7 @@
 const NotFound = () => {
   return (
     <div className="inline">
-      <br />
-      <br />
-      <br />
-      <h1 className="404title flex justify-center">404!</h1>
+      <h1 className="404title flex justify-center mt-16">404!</h1>
       <h2 className="404subTitle flex justify-center">
         You're off the edge of the map
       </h2>
