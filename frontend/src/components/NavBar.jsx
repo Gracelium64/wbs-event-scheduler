@@ -1,12 +1,30 @@
 import { logoutUser } from "../server/authFunctions";
+import { useNavigate } from "react-router";
 
-const NavBar = () => {
+const NavBar = ({ isLoggedIn, setIsLoggedIn }) => {
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logoutUser();
+    setIsLoggedIn(false);
+    navigate("/");
+  }
+
   return (
     <>
       <div className="flex justify-end m-2">
-        <button className="border rounded p-1" onClick={logoutUser}>
-          LOGOUT
-        </button>
+        {isLoggedIn ? (
+          <button className="border rounded p-1" onClick={handleLogout}>
+            LOGOUT
+          </button>
+        ) : (
+          <button
+            className="border rounded p-1"
+            onClick={() => navigate("/login")}
+          >
+            LOG IN
+          </button>
+        )}
       </div>
     </>
   );
