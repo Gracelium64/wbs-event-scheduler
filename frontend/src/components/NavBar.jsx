@@ -37,7 +37,7 @@ const NavBar = () => {
           {isLoggedIn ? (
             <button
               type="button"
-              className="btn btn-error btn-outline p-1"
+              className="btn btn-ghost px-4 py-2 rounded border mt-4  hover:bg-error transition-colors duration-300 ease-in-out"
               onClick={handleLogout}
             >
               LOGOUT
@@ -45,7 +45,7 @@ const NavBar = () => {
           ) : (
             <button
               type="button"
-              className="btn btn-ghost p-1 transition-colors duration-300 ease-in-out"
+              className="btn btn-ghost px-4 py-2 rounded border mt-4  hover:bg-purple-900 transition-colors duration-300 ease-in-out"
               onClick={() => navigate("/login")}
             >
               LOG IN
