@@ -1,7 +1,7 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
-import { Home, About, NotFound, Register, CreteEvent, LogIn } from "./pages";
+import { Home, About, NotFound, Register, CreateEvent, LogIn } from "./pages";
 import { Navigate, Outlet } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/useAuth";
@@ -12,8 +12,6 @@ const ProtectedRoute = () => {
 };
 
 function App() {
-  // const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
-
   return (
     <>
       <AuthProvider>
@@ -26,7 +24,14 @@ function App() {
               <Route path="about" element={<About />} />
               <Route path="*" element={<NotFound />} />
               <Route element={<ProtectedRoute />}>
-                <Route path="createEvent" element={<CreteEvent />} />
+                <Route
+                  path="createEvent"
+                  element={<CreateEvent mode="create" />}
+                />
+                <Route
+                  path="events/:id/edit"
+                  element={<CreateEvent mode="edit" />}
+                />
               </Route>
             </Route>
           </Routes>
@@ -37,5 +42,3 @@ function App() {
 }
 
 export default App;
-
-//todo: create event component (backend expects ISO date string like: 2026-04-16T14:30:00.000Z)
