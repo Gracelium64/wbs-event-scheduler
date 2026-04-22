@@ -309,7 +309,7 @@ const CreateEvent = ({ mode = "create" }) => {
             <div className="alert alert-error text-sm">{serverError}</div>
           )}
 
-          <div className="card-actions justify-around mt-2 flex flex-row">
+          <div className="card-actions mt-2 flex w-full items-center justify-end">
             {isEditMode && (
               <button
                 type="button"
@@ -320,10 +320,10 @@ const CreateEvent = ({ mode = "create" }) => {
                 Delete Event
               </button>
             )}
-            <div className="mx-2"></div>
+            <div className="mx-4"></div>
             <button
               type="button"
-              className="btn btn-ghost"
+              className="btn btn-ghost ml-auto"
               onClick={() => navigate("/")}
               disabled={isLoadingEvent}
             >
