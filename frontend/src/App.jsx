@@ -38,7 +38,14 @@ function App() {
                 <Route path="about" element={<About />} />
                 <Route path="*" element={<NotFound />} />
                 <Route element={<ProtectedRoute />}>
-                  <Route path="createEvent" element={<CreateEvent />} />
+                  <Route
+                    path="createEvent"
+                    element={<CreateEvent mode="create" />}
+                  />
+                  <Route
+                    path="events/:id/edit"
+                    element={<CreateEvent mode="edit" />}
+                  />
                 </Route>
               </Route>
             </Routes>

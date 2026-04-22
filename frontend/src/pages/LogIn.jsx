@@ -40,15 +40,11 @@ const LogIn = () => {
     if (!valid) return;
 
     try {
-      const response = await loginUser({ email, password });
-      const token = response.data.token;
-      localStorage.setItem("token", token);
+      await loginUser({ email, password });
       setIsLoggedIn(true);
       navigate("/");
-    } catch {
-      setServerError(
-        "User or password don't match (have fun figuring which one out)",
-      );
+    } catch (error) {
+      setServerError(error.message ?? "Login failed");
     }
   }
 

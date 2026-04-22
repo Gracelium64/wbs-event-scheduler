@@ -1,25 +1,33 @@
-import { shadowClient } from "./shadowClient.js";
+import { BASE_URL } from "./config.js";
 
-export async function registerUser({ email, password, name }) {
-  const response = await shadowClient.signup({ email, password });
-  const { id, email: userEmail, role } = response.data;
-  localStorage.setItem(
-    "user",
-    JSON.stringify({ id, email: userEmail, role, name }),
-  );
-  return response;
+export async function registerUser({ email, password }) {
+  const response = await fetch(`${BASE_URL}/auth/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || !body.success) {
+    throw new Error(body.error ?? "Registration failed");
+  }
+  return body.data;
 }
-// await registerUser({
-//   email: "test@test.com",
-//   password: "password",
-//   name: "Jane Doe",
-// });
+// await registerUser({ email: "test@test.com", password: "password" });
 
 export async function loginUser({ email, password }) {
-  const response = await shadowClient.login({ email, password });
-  const { id, email: userEmail, role } = response.data;
+  const response = await fetch(`${BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || !body.success) {
+    throw new Error(body.error ?? "Login failed");
+  }
+  const { id, email: userEmail, role, token } = body.data;
+  localStorage.setItem("token", token);
   localStorage.setItem("user", JSON.stringify({ id, email: userEmail, role }));
-  return response;
+  return body.data;
 }
 // function handleLogIn({ email, password }) {
 //   await loginUser({ email, password });
@@ -36,7 +44,6 @@ export function getLoggedUser() {
 // const loggedUser = getLoggedUser();
 
 export function logoutUser() {
-  shadowClient.logout();
   localStorage.removeItem("token");
   localStorage.removeItem("user");
 }

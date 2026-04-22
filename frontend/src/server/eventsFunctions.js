@@ -1,131 +1,180 @@
 // The backend expects an ISO date string like:
 // 2026-04-16T14:30:00.000Z
 
-import { shadowClient } from "./shadowClient.js";
+import { API_BASE_URL } from "./config.js";
 
-const EVENTS_COLLECTION = "events";
+const EVENTS_COLLECTION_NAME =
+  import.meta.env.VITE_EVENTS_COLLECTION_NAME || "events";
+const EVENTS_COLLECTION_ID = import.meta.env.VITE_EVENTS_COLLECTION_ID || null;
 
-function isAdmin() {
-  try {
-    const user = JSON.parse(localStorage.getItem("user") || "null");
-    return user?.role === "admin";
-  } catch {
-    return false;
-  }
+function authHeaders() {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-function sqlRowToDocument(row) {
-  return {
-    id: row.id,
-    collectionId: row.collection_id,
-    ownerId: row.owner_id,
-    data: typeof row.data === "string" ? JSON.parse(row.data) : row.data,
-    createdAt: new Date(row.created_at * 1000).toISOString(),
-    updatedAt: new Date(row.updated_at * 1000).toISOString(),
-  };
+// Cache collection IDs by name to avoid repeated lookups
+const collectionIdCache = {};
+
+async function getCollectionId(name) {
+  if (EVENTS_COLLECTION_ID) {
+    collectionIdCache[name] = EVENTS_COLLECTION_ID;
+    return EVENTS_COLLECTION_ID;
+  }
+
+  if (collectionIdCache[name]) return collectionIdCache[name];
+
+  const response = await fetch(`${API_BASE_URL}/collections`, {
+    headers: authHeaders(),
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || !body.success) {
+    throw new Error(body.error ?? "Failed to fetch collections");
+  }
+
+  const collections = Array.isArray(body.data) ? body.data : [];
+  for (const col of collections) {
+    if (col?.name && col?.id) {
+      collectionIdCache[col.name] = col.id;
+    }
+  }
+
+  const normalizedName = String(name).trim().toLowerCase();
+  const matched = collections.find(
+    (col) =>
+      String(col?.name || "")
+        .trim()
+        .toLowerCase() === normalizedName,
+  );
+  if (matched?.id) {
+    collectionIdCache[name] = matched.id;
+    return matched.id;
+  }
+
+  if (!collectionIdCache[name]) {
+    // Create the collection for the current user if it does not exist in their scope.
+    const createResponse = await fetch(`${API_BASE_URL}/collections`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify({ name }),
+    });
+    const createBody = await createResponse.json().catch(() => ({}));
+    if (createResponse.ok && createBody.success && createBody.data?.id) {
+      collectionIdCache[name] = createBody.data.id;
+      return createBody.data.id;
+    }
+
+    const visibleNames = collections.map((col) => col?.name).filter(Boolean);
+    throw new Error(
+      createBody.error ||
+        `Collection "${name}" not found for this user. Visible collections: ${visibleNames.join(", ") || "none"}`,
+    );
+  }
+
+  return collectionIdCache[name];
 }
 
 export async function addEvent({ title, description, date, location }) {
-  // Document API used for create regardless of role:
-  // SQL INSERT requires a collection UUID lookup which the SDK handles internally.
-  return shadowClient.createDocument(EVENTS_COLLECTION, {
-    data: { title, description, date, location },
-  });
+  const collectionId = await getCollectionId(EVENTS_COLLECTION_NAME);
+  const response = await fetch(
+    `${API_BASE_URL}/collections/${collectionId}/documents`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify({ title, description, date, location }),
+    },
+  );
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || !body.success) {
+    throw new Error(body.error ?? "Failed to create event");
+  }
+  return body.data;
 }
 
 // await addEvent({ title, description, date, location });
 
-export async function getAllEvents({ page, limit }) {
+export async function getAllEvents({ page = 1, limit = 10 } = {}) {
+  const collectionId = await getCollectionId(EVENTS_COLLECTION_NAME);
   const offset = (page - 1) * limit;
-
-  if (isAdmin()) {
-    const result = await shadowClient.executeAdminSql(
-      `SELECT d.id, d.collection_id, d.owner_id, d.data, d.created_at, d.updated_at
-       FROM documents d
-       JOIN collections c ON d.collection_id = c.id
-       WHERE c.name = ?
-       LIMIT ? OFFSET ?`,
-      { params: [EVENTS_COLLECTION, limit, offset] },
-    );
-    const rows = result.data[0]?.rows ?? [];
-    return {
-      success: result.success,
-      data: rows.map(sqlRowToDocument),
-      pagination: { limit, offset, count: rows.length },
-    };
+  const response = await fetch(
+    `${API_BASE_URL}/collections/${collectionId}/documents?limit=${limit}&offset=${offset}`,
+    { headers: authHeaders() },
+  );
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || !body.success) {
+    throw new Error(body.error ?? "Failed to fetch events");
   }
-
-  return shadowClient.listDocuments(EVENTS_COLLECTION, { limit, offset });
+  return body;
 }
 
-// const events = await getAllEvents({ page, limit });
+// const events = await getAllEvents({ page: 1, limit: 10 });
+
+export async function getUpcomingEvents() {
+  const collectionId = await getCollectionId(EVENTS_COLLECTION_NAME);
+  // Shadow App has no date-filter endpoint — fetch and filter client-side
+  const response = await fetch(
+    `${API_BASE_URL}/collections/${collectionId}/documents?limit=100&offset=0`,
+    { headers: authHeaders() },
+  );
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || !body.success) {
+    throw new Error(body.error ?? "Failed to fetch upcoming events");
+  }
+  const now = new Date();
+  return body.data
+    .filter((doc) => new Date(doc.data.date) > now)
+    .sort((a, b) => new Date(a.data.date) - new Date(b.data.date));
+}
+
+// const upcomingEvents = await getUpcomingEvents();
 
 export async function getEventById(id) {
-  if (isAdmin()) {
-    const result = await shadowClient.executeAdminSql(
-      `SELECT d.id, d.collection_id, d.owner_id, d.data, d.created_at, d.updated_at
-       FROM documents d
-       WHERE d.id = ?`,
-      { params: [id] },
-    );
-    const row = result.data[0]?.rows[0];
-    if (!row) throw new Error("Event not found");
-    return sqlRowToDocument(row);
+  const collectionId = await getCollectionId(EVENTS_COLLECTION_NAME);
+  const response = await fetch(
+    `${API_BASE_URL}/collections/${collectionId}/documents/${id}`,
+    { headers: authHeaders() },
+  );
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || !body.success) {
+    throw new Error(body.error ?? "Event not found");
   }
-
-  return shadowClient.getDocument(EVENTS_COLLECTION, id);
+  return body.data;
 }
 
 // const event = await getEventById(id);
 
 export async function updateEvent({ id, title, description, date, location }) {
-  if (isAdmin()) {
-    const now = Math.floor(Date.now() / 1000);
-    await shadowClient.executeAdminSql(
-      `UPDATE documents SET data = ?, updated_at = ? WHERE id = ?`,
-      {
-        params: [
-          JSON.stringify({ title, description, date, location }),
-          now,
-          id,
-        ],
-      },
-    );
-    return getEventById(id);
+  const collectionId = await getCollectionId(EVENTS_COLLECTION_NAME);
+  const response = await fetch(
+    `${API_BASE_URL}/collections/${collectionId}/documents/${id}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify({ title, description, date, location }),
+    },
+  );
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || !body.success) {
+    throw new Error(body.error ?? "Failed to update event");
   }
-
-  return shadowClient.updateDocument(EVENTS_COLLECTION, id, {
-    data: { title, description, date, location },
-  });
+  return body.data;
 }
 
-// await updateEvent({ id, title, description, date, location })
+// await updateEvent({ id, title, description, date, location });
 
 export async function deleteEvent({ id }) {
-  if (isAdmin()) {
-    await shadowClient.executeAdminSql(`DELETE FROM documents WHERE id = ?`, {
-      params: [id],
-    });
-    return true;
+  const collectionId = await getCollectionId(EVENTS_COLLECTION_NAME);
+  const response = await fetch(
+    `${API_BASE_URL}/collections/${collectionId}/documents/${id}`,
+    {
+      method: "DELETE",
+      headers: authHeaders(),
+    },
+  );
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error ?? "Failed to delete event");
   }
-
-  await shadowClient.deleteDocument(EVENTS_COLLECTION, id);
   return true;
 }
 
 // await deleteEvent({ id });
-
-export async function getUpcomingEvents() {
-  const response = await fetch(`${API_BASE_URL}/events/upcoming`, {
-    method: "GET",
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to retrieve upcoming events");
-  }
-
-  return response.json();
-}
-
-// const upcomingEvents = await getUpcomingEvents();
