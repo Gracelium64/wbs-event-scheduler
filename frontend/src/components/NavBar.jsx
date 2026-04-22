@@ -1,5 +1,5 @@
 import { logoutUser } from "../server/authFunctions";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 
 const NavBar = () => {

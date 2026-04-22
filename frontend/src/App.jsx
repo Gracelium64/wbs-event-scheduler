@@ -1,7 +1,7 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
-import { Home, About, NotFound, Register, CreteEvent, LogIn } from "./pages";
+import { Home, About, NotFound, Register, CreateEvent, LogIn } from "./pages";
 import { Navigate, Outlet } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/useAuth";
@@ -38,7 +38,7 @@ function App() {
                 <Route path="about" element={<About />} />
                 <Route path="*" element={<NotFound />} />
                 <Route element={<ProtectedRoute />}>
-                  <Route path="createEvent" element={<CreteEvent />} />
+                  <Route path="createEvent" element={<CreateEvent />} />
                 </Route>
               </Route>
             </Routes>
