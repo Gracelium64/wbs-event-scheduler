@@ -42,9 +42,12 @@ export async function loginUser({ email, password }) {
 
   return response.json();
 }
-
-// const { token } = await loginUser({ email, password });
-// localStorage.setItem("token", token);
+// function handleLogIn({ email, password }) {
+//   const { token } = await loginUser({ email, password });
+//   localStorage.setItem("token", token);
+//   setIsLoggedIn(true);
+//   navigate('/');
+// }
 
 export async function getLoggedUser() {
   const token = getToken();
@@ -68,3 +71,9 @@ export async function getLoggedUser() {
 export function logoutUser() {
   localStorage.removeItem("token");
 }
+
+// function handleLogout() {
+//   logoutUser();
+//   setIsLoggedIn(false);
+//   navigate("/");
+// }
