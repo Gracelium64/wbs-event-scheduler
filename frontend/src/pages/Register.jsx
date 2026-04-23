@@ -56,7 +56,7 @@ const Register = () => {
   return (
     <>
       <div
-        className={`border rounded max-w-sm m-20 mx-auto ${emailError && passwordError && nameError ? "border-red-600" : ""}`}
+        className={`card shadow-2xl max-w-sm m-20 mx-auto ${emailError && passwordError && nameError ? "border-red-600" : ""}`}
       >
         <form
           onSubmit={handleRegister}
@@ -71,7 +71,7 @@ const Register = () => {
                 name="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className={`mb-1 p-2 rounded border ml-10 ${nameError ? "border-red-500" : ""}`}
+                className={`input mb-1 p-2 rounded border ml-10 ${nameError ? "border-red-500" : ""}`}
               />
             </div>
             {nameError && (
@@ -88,7 +88,7 @@ const Register = () => {
                 name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`mb-1 p-2 rounded border ml-10 ${emailError ? "border-red-500" : ""}`}
+                className={`input mb-1 p-2 rounded border ml-10 ${emailError ? "border-red-500" : ""}`}
               />
             </div>
             {emailError && (
@@ -104,7 +104,7 @@ const Register = () => {
                 name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`mb-1 p-2 rounded border ml-2 ${passwordError ? "border-red-500" : ""}`}
+                className={`input mb-1 p-2 rounded border ml-2 ${passwordError ? "border-red-500" : ""}`}
               />
             </div>
             {passwordError && (
@@ -118,7 +118,7 @@ const Register = () => {
           )}
           <button
             type="submit"
-            className="px-4 py-2 rounded border mt-4  hover:bg-purple-900 transition-colors duration-300 ease-in-out"
+            className="btn btn-ghost px-4 py-2 rounded border mt-4  hover:bg-purple-900 transition-colors duration-300 ease-in-out"
           >
             Register
           </button>
@@ -128,7 +128,7 @@ const Register = () => {
         <h1 className="m-4">Got lost on the way to the fridge?</h1>
         <button
           onClick={() => navigate("/login")}
-          className="px-4 py-2 border rounded  p-1 hover:bg-purple-900 transition-colors duration-300 ease-in-out"
+          className="btn btn-ghost px-4 py-2 border rounded  p-1 hover:bg-purple-900 transition-colors duration-300 ease-in-out"
         >
           Log In
         </button>

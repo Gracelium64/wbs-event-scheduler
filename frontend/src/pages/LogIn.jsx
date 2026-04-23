@@ -54,7 +54,7 @@ const LogIn = () => {
   return (
     <>
       <div
-        className={`border rounded max-w-sm m-20 mx-auto ${emailError && passwordError ? "border-red-600" : ""}`}
+        className={`card shadow-2xl max-w-sm m-20 mx-auto ${emailError && passwordError ? "border-red-600" : ""}`}
       >
         <form
           onSubmit={handleLogIn}
@@ -69,7 +69,7 @@ const LogIn = () => {
                 name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`mb-1 p-2 rounded border ml-10 ${emailError ? "border-red-500" : ""}`}
+                className={`input mb-1 p-2  ml-10 ${emailError ? "border-red-500" : ""}`}
               />
             </div>
             {emailError && (
@@ -85,7 +85,7 @@ const LogIn = () => {
                 name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`mb-1 p-2 rounded border ml-2 ${passwordError ? "border-red-500" : ""}`}
+                className={`input mb-1 p-2 rounded border ml-2 ${passwordError ? "border-red-500" : ""}`}
               />
             </div>
             {passwordError && (
@@ -95,7 +95,7 @@ const LogIn = () => {
 
           <button
             type="submit"
-            className="px-4 py-2 rounded border mt-4  hover:bg-purple-900 transition-colors duration-300 ease-in-out"
+            className="btn btn-ghost px-4 py-2 rounded border mt-4  hover:bg-purple-900 transition-colors duration-300 ease-in-out"
           >
             Log In
           </button>
@@ -109,8 +109,9 @@ const LogIn = () => {
       <div className="flex flex-col justify-center items-center gap-2 p-4">
         <h1 className="m-4">No user yet?</h1>
         <button
+          type="button"
           onClick={() => navigate("/register")}
-          className="px-4 py-2 border rounded  p-1 hover:bg-purple-900 transition-colors duration-300 ease-in-out"
+          className="btn btn-ghost px-4 py-2 border rounded  p-1 hover:bg-purple-900 transition-colors duration-300 ease-in-out"
         >
           Register
         </button>

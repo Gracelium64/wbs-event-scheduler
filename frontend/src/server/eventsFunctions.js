@@ -4,7 +4,13 @@
 import { getToken } from "./tokenFunction.js";
 import { API_BASE_URL } from "./config.js";
 
-export async function addEvent({ title, description, date, location }) {
+export async function addEvent({
+  title,
+  description,
+  date,
+  location,
+  organizerId,
+}) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events`, {
     method: "POST",
@@ -12,7 +18,13 @@ export async function addEvent({ title, description, date, location }) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ title, description, date, location }),
+    body: JSON.stringify({
+      title,
+      description,
+      date,
+      location,
+      organizerId,
+    }),
   });
 
   if (!response.ok) {
@@ -58,7 +70,14 @@ export async function getEventById(id) {
 
 // const event = await getEventById(id);
 
-export async function updateEvent({ id, title, description, date, location }) {
+export async function updateEvent({
+  id,
+  title,
+  description,
+  date,
+  location,
+  organizerId,
+}) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "PUT",
@@ -66,7 +85,13 @@ export async function updateEvent({ id, title, description, date, location }) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ title, description, date, location }),
+    body: JSON.stringify({
+      title,
+      description,
+      date,
+      location,
+      organizerId,
+    }),
   });
 
   if (!response.ok) {
