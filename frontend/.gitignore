@@ -1,0 +1,7 @@
+node_modules/
+db.db
+.env
+dist/
+.env.local
+.env.*.local
+black_speech.env
