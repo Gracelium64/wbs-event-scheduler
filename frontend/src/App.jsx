@@ -1,10 +1,18 @@
-import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import MainLayout from "./layouts/MainLayout";
-import { Home, About, NotFound, Register, CreateEvent, LogIn } from "./pages";
-import { Navigate, Outlet } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import { useAuth } from "./context/useAuth";
+import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import MainLayout from './layouts/MainLayout';
+import {
+  Home,
+  About,
+  NotFound,
+  Register,
+  CreateEvent,
+  LogIn,
+  EventPage,
+} from './pages';
+import { Navigate, Outlet } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './context/useAuth';
 
 const ProtectedRoute = () => {
   const { isLoggedIn } = useAuth();
@@ -22,6 +30,10 @@ function App() {
               <Route path="login" element={<LogIn />} />
               <Route path="register" element={<Register />} />
               <Route path="about" element={<About />} />
+              <Route
+                path="events/:eventId"
+                element={<EventPage mode="view" />}
+              />
               <Route path="*" element={<NotFound />} />
               <Route element={<ProtectedRoute />}>
                 <Route
