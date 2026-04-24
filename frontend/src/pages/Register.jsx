@@ -12,10 +12,11 @@ const Register = () => {
   const [passwordError, setPasswordError] = useState("");
   const [nameError, setNameError] = useState("");
   const [serverError, setServerError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleRegister(e) {
     e.preventDefault();
-
+    setIsLoading(true);
     let valid = true;
     if (!email) {
       setEmailError("Email is required");
@@ -50,6 +51,8 @@ const Register = () => {
       navigate("/login");
     } catch (error) {
       setServerError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -120,7 +123,11 @@ const Register = () => {
             type="submit"
             className="btn btn-ghost px-4 py-2 rounded border mt-4  hover:bg-purple-900 transition-colors duration-300 ease-in-out"
           >
-            Register
+            {isLoading ? (
+              <span className="loading loading-infinity loading-xl"></span>
+            ) : (
+              "Register"
+            )}
           </button>
         </form>
       </div>

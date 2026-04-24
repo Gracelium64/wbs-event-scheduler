@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node --env-file=.env --watch index.js",
     "start": "node index.js",
-    "seed": "node seed.js"
+    "seed": "node seed.js"  
   },
   "dependencies": {
     "@sequelize/sqlite3": "^7.0.0-alpha.48",
