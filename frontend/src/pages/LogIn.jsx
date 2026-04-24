@@ -12,10 +12,11 @@ const LogIn = () => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [serverError, setServerError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleLogIn(e) {
     e.preventDefault();
-
+    setIsLoading(true);
     let valid = true;
     if (!email) {
       setEmailError("Email is required");
@@ -40,18 +41,28 @@ const LogIn = () => {
     if (!valid) return;
 
     try {
-      await loginUser({ email, password });
+      const {
+        token,
+        user: { id, validatedEmail },
+      } = await loginUser({ email, password });
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", id);
+      localStorage.setItem("validatedEmail", validatedEmail);
       setIsLoggedIn(true);
       navigate("/");
-    } catch (error) {
-      setServerError(error.message ?? "Login failed");
+    } catch {
+      setServerError(
+        "User or password don't match (have fun figuring which one out)",
+      );
+    } finally {
+      setIsLoading(false);
     }
   }
 
   return (
     <>
       <div
-        className={`border rounded max-w-sm m-20 mx-auto ${emailError && passwordError ? "border-red-600" : ""}`}
+        className={`card shadow-2xl max-w-sm m-20 mx-auto ${emailError && passwordError ? "border-red-600" : ""}`}
       >
         <form
           onSubmit={handleLogIn}
@@ -66,7 +77,7 @@ const LogIn = () => {
                 name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`mb-1 p-2 rounded border ml-10 ${emailError ? "border-red-500" : ""}`}
+                className={`input mb-1 p-2  ml-10 ${emailError ? "border-red-500" : ""}`}
               />
             </div>
             {emailError && (
@@ -82,7 +93,7 @@ const LogIn = () => {
                 name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`mb-1 p-2 rounded border ml-2 ${passwordError ? "border-red-500" : ""}`}
+                className={`input mb-1 p-2 rounded border ml-2 ${passwordError ? "border-red-500" : ""}`}
               />
             </div>
             {passwordError && (
@@ -92,9 +103,13 @@ const LogIn = () => {
 
           <button
             type="submit"
-            className="px-4 py-2 rounded border mt-4  hover:bg-purple-900 transition-colors duration-300 ease-in-out"
+            className="btn btn-ghost px-4 py-2 rounded border mt-4  hover:bg-purple-900 transition-colors duration-300 ease-in-out"
           >
-            Log In
+            {isLoading ? (
+              <span className="loading loading-infinity loading-xl"></span>
+            ) : (
+              "Log In"
+            )}
           </button>
           {serverError && (
             <p className="text-red-400 text-sm text-center mb-2">
@@ -103,11 +118,13 @@ const LogIn = () => {
           )}
         </form>
       </div>
+
       <div className="flex flex-col justify-center items-center gap-2 p-4">
         <h1 className="m-4">No user yet?</h1>
         <button
+          type="button"
           onClick={() => navigate("/register")}
-          className="px-4 py-2 border rounded  p-1 hover:bg-purple-900 transition-colors duration-300 ease-in-out"
+          className="btn btn-ghost px-4 py-2 border rounded  p-1 hover:bg-purple-900 transition-colors duration-300 ease-in-out"
         >
           Register
         </button>
