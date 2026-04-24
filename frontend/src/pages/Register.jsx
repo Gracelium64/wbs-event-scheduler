@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "../server/authFunctions";
 import { useState } from "react";
+import { useShadowApp, useAuth as useShadowAuth } from "@shadow-app/react-sdk";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -12,15 +12,15 @@ const Register = () => {
   const [passwordError, setPasswordError] = useState("");
   const [nameError, setNameError] = useState("");
   const [serverError, setServerError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { client } = useShadowApp();
+  const { signup, isLoading, error } = useShadowAuth(client);
 
   async function handleRegister(e) {
     e.preventDefault();
-    setIsLoading(true);
     let valid = true;
     if (!email) {
       setEmailError("Email is required");
-
       valid = false;
     } else {
       setEmailError("");
@@ -47,12 +47,10 @@ const Register = () => {
     if (!valid) return;
 
     try {
-      await registerUser({ email, password, name });
+      await signup({ email, password }); // name is not supported by SDK
       navigate("/login");
-    } catch (error) {
-      setServerError(error.message);
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      setServerError(err.message || "Registration failed");
     }
   }
 
@@ -114,9 +112,9 @@ const Register = () => {
               <p className="text-red-400 text-xs ml-2 mb-2">{passwordError}</p>
             )}
           </div>
-          {serverError && (
+          {(serverError || error) && (
             <p className="text-red-400 text-sm text-center mb-2">
-              {serverError}
+              {serverError || (error && error.error)}
             </p>
           )}
           <button

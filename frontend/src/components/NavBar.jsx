@@ -1,4 +1,4 @@
-import { logoutUser } from '../server/authFunctions';
+import { useShadowApp, useAuth as useShadowAuth } from '@shadow-app/react-sdk';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../context/useAuth';
@@ -7,10 +7,13 @@ const NavBar = () => {
   const { isLoggedIn, setIsLoggedIn } = useAuth();
   const navigate = useNavigate();
 
+  const { client } = useShadowApp();
+  const { logout } = useShadowAuth(client);
+
   function handleLogout() {
-    navigate('/');
-    logoutUser();
+    logout();
     setIsLoggedIn(false);
+    navigate('/');
   }
 
   return (

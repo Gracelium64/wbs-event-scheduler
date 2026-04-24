@@ -1,26 +1,23 @@
-import { useAuth } from "../context/useAuth";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../server/authFunctions";
 import { useState } from "react";
+import { useShadowApp, useAuth as useShadowAuth } from "@shadow-app/react-sdk";
 
 const LogIn = () => {
   const navigate = useNavigate();
-  const { setIsLoggedIn } = useAuth();
+  const { client } = useShadowApp();
+  const { login, isLoading, error } = useShadowAuth(client);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [serverError, setServerError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   async function handleLogIn(e) {
     e.preventDefault();
-    setIsLoading(true);
     let valid = true;
     if (!email) {
       setEmailError("Email is required");
-
       valid = false;
     } else {
       setEmailError("");
@@ -41,21 +38,10 @@ const LogIn = () => {
     if (!valid) return;
 
     try {
-      const {
-        token,
-        user: { id, validatedEmail },
-      } = await loginUser({ email, password });
-      localStorage.setItem("token", token);
-      localStorage.setItem("userId", id);
-      localStorage.setItem("validatedEmail", validatedEmail);
-      setIsLoggedIn(true);
+      await login({ email, password });
       navigate("/");
     } catch {
-      setServerError(
-        "User or password don't match (have fun figuring which one out)",
-      );
-    } finally {
-      setIsLoading(false);
+      setServerError("User or password don't match");
     }
   }
 
@@ -111,9 +97,9 @@ const LogIn = () => {
               "Log In"
             )}
           </button>
-          {serverError && (
+          {(serverError || error) && (
             <p className="text-red-400 text-sm text-center mb-2">
-              {serverError}
+              {serverError || (error && error.error)}
             </p>
           )}
         </form>
