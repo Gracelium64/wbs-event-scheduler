@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getEventById } from '../server/eventsFunctions';
+import { getUserById } from '../server/usersFunctions';
 
 export default function EventPage() {
   const { eventId } = useParams();
   const navigate = useNavigate();
 
   const [event, setEvent] = useState(null);
+  const [creator, setCreator] = useState(null);
   const userId = localStorage.getItem('userId');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,6 +17,8 @@ export default function EventPage() {
     const fetchEvent = async () => {
       try {
         const data = await getEventById(eventId);
+        const eventCreator = await getUserById(data.organizerId);
+        setCreator(eventCreator);
         setEvent(data);
       } catch (err) {
         setError(err.message);
@@ -25,9 +29,6 @@ export default function EventPage() {
 
     fetchEvent();
   }, [eventId]);
-
-  console.log('Current user', userId);
-  console.log('Organizer Id', event?.organizerId);
 
   if (loading)
     return (
@@ -73,21 +74,23 @@ export default function EventPage() {
               {event.title}
             </h1>
             <div className="relative group">
-              <button
-                disabled={!canEditEvent}
-                onClick={() => {
-                  navigate(`/events/${event.id}/edit`);
-                  console.log('navigating');
-                }}
-                className={
-                  'mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ' +
-                  (canEditEvent
-                    ? 'opacity-100 cursor-pointer'
-                    : 'opacity-50 cursor-not-allowed')
-                }
-              >
-                Edit this event
-              </button>
+              {canEditEvent && (
+                <button
+                  disabled={!canEditEvent}
+                  onClick={() => {
+                    navigate(`/events/${event.id}/edit`);
+                    console.log('navigating');
+                  }}
+                  className={
+                    'mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ' +
+                    (canEditEvent
+                      ? 'opacity-100 cursor-pointer'
+                      : 'opacity-50 cursor-not-allowed')
+                  }
+                >
+                  Edit this event
+                </button>
+              )}
               {!canEditEvent && (
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 border border-red-500/50 rounded-lg text-sm text-red-400 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                   You are not the organizer of this event
@@ -167,6 +170,15 @@ export default function EventPage() {
               </h3>
 
               <div className="space-y-4">
+                <div className="border-t border-gray-700/50 pt-6">
+                  <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
+                    Event creator
+                  </p>
+                  <p className="text-sm text-gray-300">
+                    {creator.email || 'Unknown'}
+                  </p>
+                </div>
+
                 <div className="border-t border-gray-700/50 pt-6">
                   <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
                     Created
