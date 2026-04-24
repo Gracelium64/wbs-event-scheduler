@@ -313,7 +313,7 @@ const CreateEvent = ({ mode = "create" }) => {
             {isEditMode && (
               <button
                 type="button"
-                className="btn btn-error btn-outline w-1/6 h-12"
+                className="btn btn-error btn-outline btn-sm h-12"
                 onClick={() => setIsDeleteModalOpen(true)}
                 disabled={isLoadingEvent || isLoadingUser || isEditForbidden}
               >
