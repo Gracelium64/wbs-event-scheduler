@@ -1,18 +1,77 @@
-import { BASE_URL } from "./config.js";
+import { getToken } from "./tokenFunction.js";
+import { API_BASE_URL } from "./config.js";
 
-export async function registerUser({ email, password }) {
-  const response = await fetch(`${BASE_URL}/auth/signup`, {
+export async function registerUser({ email, password, name }) {
+  const response = await fetch(`${API_BASE_URL}/users`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password, name }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Registration failed");
+  }
+
+  return response.json();
+}
+// await registerUser({
+//   email: "test@test.com",
+//   password: "password",
+//   name: "Jane Doe",
+// });
+
+export async function loginUser({ email, password }) {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ email, password }),
   });
-  const body = await response.json().catch(() => ({}));
-  if (!response.ok || !body.success) {
-    throw new Error(body.error ?? "Registration failed");
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(
+      error.message ||
+        "User or password don't match (have fun figuring which one out)",
+    );
   }
-  return body.data;
+
+  return response.json();
 }
-// await registerUser({ email: "test@test.com", password: "password" });
+// function handleLogIn({ email, password }) {
+//   const { token } = await loginUser({ email, password });
+//   localStorage.setItem("token", token);
+//   setIsLoggedIn(true);
+//   navigate('/');
+// }
+
+export async function getLoggedUser() {
+  const token = getToken();
+  const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "No logged in user found");
+  }
+
+  return response.json();
+}
+
+// const loggedUser = await getLoggedUser();
+
+export function logoutUser() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("userId");
+}
 
 // function handleLogout() {
 //   logoutUser();
