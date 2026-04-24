@@ -1,80 +1,71 @@
-import { getToken } from "./tokenFunction.js";
-import { API_BASE_URL } from "./config.js";
+import {
+  parseUserFromToken,
+  shadowClient,
+  syncShadowClientToken,
+} from "./shadowClient.js";
 
 export async function registerUser({ email, password, name }) {
-  const response = await fetch(`${API_BASE_URL}/users`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password, name }),
-  });
+  const response = await shadowClient.signup({ email, password });
+  const token = response?.data?.token;
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Registration failed");
+  if (!token) {
+    throw new Error("Registration failed");
   }
 
-  return response.json();
+  const user = parseUserFromToken(token);
+  if (user?.id) {
+    localStorage.setItem("userId", user.id);
+  }
+
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      name,
+    },
+  };
 }
-// await registerUser({
-//   email: "test@test.com",
-//   password: "password",
-//   name: "Jane Doe",
-// });
 
 export async function loginUser({ email, password }) {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, password }),
-  });
+  const response = await shadowClient.login({ email, password });
+  const token = response?.data?.token;
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(
-      error.message ||
-        "User or password don't match (have fun figuring which one out)",
-    );
+  if (!token) {
+    throw new Error("User or password don't match");
   }
 
-  return response.json();
+  const user = parseUserFromToken(token);
+  if (user?.id) {
+    localStorage.setItem("userId", user.id);
+  }
+
+  return response;
 }
-// function handleLogIn({ email, password }) {
-//   const { token } = await loginUser({ email, password });
-//   localStorage.setItem("token", token);
-//   setIsLoggedIn(true);
-//   navigate('/');
-// }
 
 export async function getLoggedUser() {
-  const token = getToken();
-  const response = await fetch(`${API_BASE_URL}/auth/profile`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  syncShadowClientToken();
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "No logged in user found");
+  const token = shadowClient.getAccessToken();
+  if (!token) {
+    throw new Error("No logged in user found");
   }
 
-  return response.json();
-}
+  const user = parseUserFromToken(token);
+  if (!user?.id) {
+    const persistedUserId = localStorage.getItem("userId");
+    if (persistedUserId) {
+      return { id: persistedUserId };
+    }
 
-// const loggedUser = await getLoggedUser();
+    throw new Error("Could not determine logged user from token");
+  }
+
+  return user;
+}
 
 export function logoutUser() {
+  shadowClient.logout();
   localStorage.removeItem("token");
   localStorage.removeItem("userId");
+  localStorage.removeItem("user");
 }
-
-// function handleLogout() {
-//   logoutUser();
-//   setIsLoggedIn(false);
-//   navigate("/");
-// }

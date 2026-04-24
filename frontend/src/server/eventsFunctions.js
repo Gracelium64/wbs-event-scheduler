@@ -1,8 +1,18 @@
-// The backend expects an ISO date string like:
-// 2026-04-16T14:30:00.000Z
+import {
+  ensureEventsCollection,
+  shadowClient,
+  syncShadowClientToken,
+} from "./shadowClient.js";
 
-import { getToken } from "./tokenFunction.js";
-import { API_BASE_URL } from "./config.js";
+function normalizeEvent(document) {
+  return {
+    id: document.id,
+    ownerId: document.ownerId,
+    createdAt: document.createdAt,
+    updatedAt: document.updatedAt,
+    ...document.data,
+  };
+}
 
 export async function addEvent({
   title,
@@ -13,14 +23,15 @@ export async function addEvent({
   longitude,
   organizerId,
 }) {
-  const token = getToken();
-  const response = await fetch(`${API_BASE_URL}/events`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
+  syncShadowClientToken();
+
+  if (!shadowClient.isAuthenticated()) {
+    throw new Error("Please log in to add events");
+  }
+
+  const collectionId = await ensureEventsCollection();
+  const document = await shadowClient.createDocument(collectionId, {
+    data: {
       title,
       description,
       date,
@@ -28,60 +39,61 @@ export async function addEvent({
       latitude,
       longitude,
       organizerId,
-    }),
+    },
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to add an event");
-  }
-
-  return response.json();
+  return normalizeEvent(document);
 }
-
-// await addEvent({ title, description, date, location });
 
 export async function getAllEvents(page, limit) {
-  let query = "";
+  syncShadowClientToken();
 
-  if (page) {
-    query = `?page=${page}&`;
-  }
-  if (limit) {
-    if (!query) {
-      query = "?";
-    }
-    query += `limit=${limit}`;
+  if (!shadowClient.isAuthenticated()) {
+    return {
+      totalCount: 0,
+      totalPages: 0,
+      currentPage: page || 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+      results: [],
+    };
   }
 
-  const response = await fetch(`${API_BASE_URL}/events${query}`, {
-    method: "GET",
+  const collectionId = await ensureEventsCollection();
+  const safeLimit = Number(limit) > 0 ? Number(limit) : 50;
+  const safePage = Number(page) > 0 ? Number(page) : 1;
+  const offset = (safePage - 1) * safeLimit;
+
+  const response = await shadowClient.listDocuments(collectionId, {
+    limit: safeLimit,
+    offset,
   });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "No events found");
-  }
+  const totalCount = response.pagination?.count ?? response.data.length;
+  const totalPages = Math.ceil(totalCount / safeLimit) || 1;
 
-  return response.json();
+  return {
+    totalCount,
+    totalPages,
+    currentPage: safePage,
+    hasNextPage: safePage < totalPages,
+    hasPreviousPage: safePage > 1,
+    results: response.data.map(normalizeEvent),
+  };
 }
-
-// const events = await getAllEvents({ page, limit });
 
 export async function getEventById(id) {
-  const response = await fetch(`${API_BASE_URL}/events/${id}`, {
-    method: "GET",
-  });
+  syncShadowClientToken();
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Event not found");
+  if (!shadowClient.isAuthenticated()) {
+    throw new Error("Please log in to view this event");
   }
 
-  return response.json();
-}
+  const collectionId = await ensureEventsCollection();
+  const event = await shadowClient.getDocument(collectionId, id);
 
-// const event = await getEventById(id);
+  return normalizeEvent(event);
+}
 
 export async function updateEvent({
   id,
@@ -91,62 +103,47 @@ export async function updateEvent({
   location,
   organizerId,
 }) {
-  const token = getToken();
-  const response = await fetch(`${API_BASE_URL}/events/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      title,
-      description,
-      date,
-      location,
-      organizerId,
-    }),
-  });
+  syncShadowClientToken();
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to update event");
+  if (!shadowClient.isAuthenticated()) {
+    throw new Error("Please log in to update events");
   }
 
-  return response.json();
+  const collectionId = await ensureEventsCollection();
+  const updatedDocument = await shadowClient.updateDocument(collectionId, id, {
+    data: {
+      ...(title !== undefined ? { title } : {}),
+      ...(description !== undefined ? { description } : {}),
+      ...(date !== undefined ? { date } : {}),
+      ...(location !== undefined ? { location } : {}),
+      ...(organizerId !== undefined ? { organizerId } : {}),
+    },
+  });
+
+  return normalizeEvent(updatedDocument);
 }
 
-// await updateEvent({ id, title, description, date, location })
-
 export async function deleteEvent({ id }) {
-  const token = getToken();
-  const response = await fetch(`${API_BASE_URL}/events/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  syncShadowClientToken();
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to delete event");
+  if (!shadowClient.isAuthenticated()) {
+    throw new Error("Please log in to delete events");
   }
+
+  const collectionId = await ensureEventsCollection();
+  await shadowClient.deleteDocument(collectionId, id);
 
   return true;
 }
 
-// await deleteEvent({ id });
-
 export async function getUpcomingEvents() {
-  const response = await fetch(`${API_BASE_URL}/events/upcoming`, {
-    method: "GET",
-  });
+  const eventsResponse = await getAllEvents(1, 200);
+  const now = Date.now();
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to retrieve upcoming events");
-  }
-
-  return response.json();
+  return eventsResponse.results
+    .filter((event) => {
+      const timestamp = new Date(event.date).getTime();
+      return !Number.isNaN(timestamp) && timestamp > now;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 }
-
-// const upcomingEvents = await getUpcomingEvents();

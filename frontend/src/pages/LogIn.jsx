@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useShadowApp, useAuth as useShadowAuth } from "@shadow-app/react-sdk";
+import { useAuth } from "../context/useAuth";
 
 const LogIn = () => {
   const navigate = useNavigate();
+  const { setIsLoggedIn } = useAuth();
   const { client } = useShadowApp();
   const { login, isLoading, error } = useShadowAuth(client);
 
@@ -39,6 +41,7 @@ const LogIn = () => {
 
     try {
       await login({ email, password });
+      setIsLoggedIn(true);
       navigate("/");
     } catch {
       setServerError("User or password don't match");
