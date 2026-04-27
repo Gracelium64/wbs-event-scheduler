@@ -11,7 +11,7 @@ export interface Events {
   location: string;
   latitude?: number;
   longitude?: number;
-  organizerId: number | string | null;
+  organizerId: number | string;
   organizerEmail: string;
 }
 
