@@ -3,7 +3,7 @@ export interface AuthContextType {
   setIsLoggedIn: (value: boolean) => void;
 }
 
-export interface Event {
+export interface Events {
   id: number | string;
   title: string;
   description?: string;
@@ -11,7 +11,7 @@ export interface Event {
   location: string;
   latitude?: number;
   longitude?: number;
-  organizerId: number | string;
+  organizerId: number | string | null;
   organizerEmail: string;
 }
 
@@ -19,6 +19,6 @@ export interface EventSectionProps {
   title: string;
   badgeClass: string;
   cardClass: string;
-  items: Event[];
+  items: Events[];
   emptyLabel: string;
 }

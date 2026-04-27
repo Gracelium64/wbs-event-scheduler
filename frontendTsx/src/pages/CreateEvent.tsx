@@ -7,6 +7,7 @@ import {
   updateEvent,
   deleteEvent,
 } from "../server/eventsFunctions";
+import type { Events } from "../interfaces";
 
 const CreateEvent = ({ mode = "create" }) => {
   const navigate = useNavigate();
@@ -15,23 +16,27 @@ const CreateEvent = ({ mode = "create" }) => {
   const isCreateMode = mode === "create";
   const isEditMode = mode === "edit";
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [location, setLocation] = useState("");
-  const [currentUserId, setCurrentUserId] = useState(null);
-  const [eventOrganizerId, setEventOrganizerId] = useState(null);
-  const [isLoadingEvent, setIsLoadingEvent] = useState(false);
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [date, setDate] = useState<string>("");
+  const [time, setTime] = useState<string>("");
+  const [location, setLocation] = useState<string>("");
+  const [currentUserId, setCurrentUserId] = useState<number | string | null>(
+    null,
+  );
+  const [eventOrganizerId, setEventOrganizerId] = useState<
+    number | string | null
+  >(null);
+  const [isLoadingEvent, setIsLoadingEvent] = useState<boolean>(false);
+  const [isLoadingUser, setIsLoadingUser] = useState<boolean>(true);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
-  const [titleError, setTitleError] = useState("");
-  const [descriptionError, setDescriptionError] = useState("");
-  const [dateError, setDateError] = useState("");
-  const [timeError, setTimeError] = useState("");
-  const [locationError, setLocationError] = useState("");
-  const [serverError, setServerError] = useState("");
+  const [titleError, setTitleError] = useState<string | null>("");
+  const [descriptionError, setDescriptionError] = useState<string | null>("");
+  const [dateError, setDateError] = useState<string | null>("");
+  const [timeError, setTimeError] = useState<string | null>("");
+  const [locationError, setLocationError] = useState<string | null>("");
+  const [serverError, setServerError] = useState<string | null>("");
 
   const pageTitle = isEditMode ? "Edit Event" : "Create Event";
 
@@ -54,11 +59,11 @@ const CreateEvent = ({ mode = "create" }) => {
     setServerError("");
   }
 
-  function hydrateEventData(eventData) {
+  function hydrateEventData(eventData: Events) {
     setTitle(eventData.title ?? "");
     setDescription(eventData.description ?? "");
     setLocation(eventData.location ?? "");
-    setEventOrganizerId(eventData.organizerId ?? null);
+    setEventOrganizerId(eventData.organizerId ?? "null");
 
     if (eventData.date) {
       const dateObject = new Date(eventData.date);
@@ -120,8 +125,10 @@ const CreateEvent = ({ mode = "create" }) => {
         setIsLoadingUser(true);
         const loggedUser = await getLoggedUser();
         setCurrentUserId(loggedUser?.id ?? null);
-      } catch (error) {
-        setServerError(error.message || "Failed to load logged user");
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setServerError(error.message || "Failed to load logged user");
+        }
       } finally {
         setIsLoadingUser(false);
       }
@@ -140,8 +147,10 @@ const CreateEvent = ({ mode = "create" }) => {
         setIsLoadingEvent(true);
         const eventData = await getEventById(id);
         hydrateEventData(eventData);
-      } catch (error) {
-        setServerError(error.message || "Failed to load event");
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setServerError(error.message || "Failed to load event");
+        }
       } finally {
         setIsLoadingEvent(false);
       }
@@ -150,12 +159,10 @@ const CreateEvent = ({ mode = "create" }) => {
     loadEvent();
   }, [id, isEditMode]);
 
-  useEffect(() => {
-    if (!isEditForbidden) return;
-    setServerError("You can only edit events you organize.");
-  }, [isEditForbidden]);
+  if (!isEditForbidden) return;
+  setServerError("You can only edit events you organize.");
 
-  async function handleEvent(e) {
+  async function handleEvent(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
     clearErrors();
@@ -185,18 +192,20 @@ const CreateEvent = ({ mode = "create" }) => {
       }
 
       if (isEditMode) {
-        await updateEvent({
-          id,
-          title: title.trim(),
-          description: description.trim(),
-          date: buildIsoDateTime(),
-          location: location.trim(),
-        });
+        await updateEvent(
+          title.trim(),
+          description.trim(),
+          buildIsoDateTime(),
+          location.trim(),
+          currentUserId,
+        );
       }
 
       navigate("/");
-    } catch (error) {
-      setServerError(error.message || "An error occurred while saving event");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setServerError(error.message || "An error occurred while saving event");
+      }
     }
   }
 
@@ -212,8 +221,10 @@ const CreateEvent = ({ mode = "create" }) => {
       await deleteEvent({ id });
       setIsDeleteModalOpen(false);
       navigate("/");
-    } catch (error) {
-      setServerError(error.message || "Failed to delete event");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setServerError(error.message || "Failed to delete event");
+      }
     } finally {
       setIsLoadingEvent(false);
     }

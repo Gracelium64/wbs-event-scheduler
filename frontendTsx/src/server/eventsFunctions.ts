@@ -9,8 +9,6 @@ export async function addEvent({
   description,
   date,
   location,
-  latitude,
-  longitude,
   organizerId,
 }) {
   const token = getToken();
@@ -25,8 +23,6 @@ export async function addEvent({
       description,
       date,
       location,
-      latitude,
-      longitude,
       organizerId,
     }),
   });
@@ -83,14 +79,14 @@ export async function getEventById(id) {
 
 // const event = await getEventById(id);
 
-export async function updateEvent({
-  id,
-  title,
-  description,
-  date,
-  location,
-  organizerId,
-}) {
+export async function updateEvent(
+  title: string,
+  description: string,
+  date: string,
+  location: string,
+  organizerId: string | number,
+  id?: string | number,
+) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "PUT",

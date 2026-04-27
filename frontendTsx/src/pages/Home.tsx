@@ -3,14 +3,14 @@ import { useNavigate } from "react-router";
 import { getAllEvents } from "../server/eventsFunctions";
 import { getUserById } from "../server/usersFunctions";
 import { getLoggedUser } from "../server/authFunctions";
-import type { EventSectionProps, Event } from "../interfaces";
+import type { EventSectionProps, Events } from "../interfaces";
 
 const EVENTS_PAGE = 1;
 const EVENTS_LIMIT = 100;
 
 const Home = () => {
   const navigate = useNavigate();
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<Events[]>([]);
   const [organizerById, setOrganizerById] = useState<
     Record<string, string | null>
   >({});
@@ -34,7 +34,7 @@ const Home = () => {
         setEvents(eventList);
 
         const organizerIds = [
-          ...new Set(eventList.map((event: Event) => event.organizerId)),
+          ...new Set(eventList.map((event: Events) => event.organizerId)),
         ].filter((id) => id !== null && id !== undefined);
 
         if (!organizerIds.length) {
@@ -101,8 +101,8 @@ const Home = () => {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
 
-    const upcoming: Event[] = [];
-    const past: Event[] = [];
+    const upcoming: Events[] = [];
+    const past: Events[] = [];
 
     sorted.forEach((event) => {
       const eventDate = new Date(event.date);
@@ -145,7 +145,7 @@ const Home = () => {
 
   function getOrganizerName(
     organizerId: string | number,
-    event: Event | null,
+    event: Events | null,
   ): string | null {
     const name = organizerById[organizerId];
     if (name) return name;
