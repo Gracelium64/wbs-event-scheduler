@@ -3,17 +3,18 @@
 
 import { getToken } from "./tokenFunction.js";
 import { API_BASE_URL } from "./config.js";
-import type { Events } from "../interfaces";
+import type {
+  CreateEventPayload,
+  UpdateEventPayload,
+} from "../interfaces/index.js";
 
 export async function addEvent({
-  id,
   title,
   description,
   date,
   location,
   organizerId,
-  organizerEmail,
-}: Events) {
+}: CreateEventPayload) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events`, {
     method: "POST",
@@ -67,7 +68,7 @@ export async function getAllEvents(page: number, limit: number) {
 
 // const events = await getAllEvents({ page, limit });
 
-export async function getEventById(id: Events) {
+export async function getEventById(id: number | string) {
   const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "GET",
   });
@@ -89,8 +90,7 @@ export async function updateEvent({
   location,
   organizerId,
   id,
-  organizerEmail,
-}: Events) {
+}: UpdateEventPayload) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "PUT",
@@ -117,7 +117,7 @@ export async function updateEvent({
 
 // await updateEvent({ id, title, description, date, location })
 
-export async function deleteEvent(id: Events) {
+export async function deleteEvent(id: number | string) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "DELETE",

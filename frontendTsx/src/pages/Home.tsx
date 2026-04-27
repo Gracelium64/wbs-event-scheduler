@@ -9,6 +9,9 @@ const EVENTS_PAGE = 1;
 const EVENTS_LIMIT = 100;
 
 const Home = () => {
+  const canEditEvent = (event: Events): boolean =>
+    currentUserId !== null && currentUserId === event.organizerId;
+
   const navigate = useNavigate();
   const [events, setEvents] = useState<Events[]>([]);
   const [organizerById, setOrganizerById] = useState<
@@ -18,11 +21,10 @@ const Home = () => {
     useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentUserId, setCurrentUserId] = useState<string | number | null>(
     null,
   );
-
+  console.log(currentUserId);
   useEffect(() => {
     async function loadEvents() {
       try {
@@ -177,8 +179,7 @@ const Home = () => {
             {items.map((event) => (
               <article
                 key={event.id}
-                className={`card border border-base-300 shadow-md transition-all hover:-translate-y-1 hover:shadow-xl cursor-pointer ${cardClass}`}
-                onClick={() => navigate(`/events/${event.id}/edit`)}
+                className={`card border border-base-300 shadow-md transition-all  hover:shadow-xl cursor-pointer ${cardClass}`}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
@@ -210,7 +211,14 @@ const Home = () => {
                   </ul>
 
                   <div className="card-actions justify-end">
-                    <span className="btn btn-sm btn-outline">Edit Event</span>
+                    {canEditEvent(event) && (
+                      <span
+                        onClick={() => navigate(`/events/${event.id}/edit`)}
+                        className="btn btn-sm btn-outline"
+                      >
+                        Edit Event
+                      </span>
+                    )}
                   </div>
                 </div>
               </article>

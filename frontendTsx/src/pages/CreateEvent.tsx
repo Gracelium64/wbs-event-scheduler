@@ -145,7 +145,7 @@ const CreateEvent = ({ mode = "create" }) => {
     async function loadEvent() {
       try {
         setIsLoadingEvent(true);
-        const eventData = await getEventById(id);
+        const eventData = await getEventById(id!);
         hydrateEventData(eventData);
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -159,9 +159,6 @@ const CreateEvent = ({ mode = "create" }) => {
     loadEvent();
   }, [id, isEditMode]);
 
-  if (!isEditForbidden) return;
-  setServerError("You can only edit events you organize.");
-
   async function handleEvent(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -172,6 +169,11 @@ const CreateEvent = ({ mode = "create" }) => {
 
     if (!currentUserId) {
       setServerError("Could not determine organizer from your account");
+      return;
+    }
+
+    if (isEditMode && !id) {
+      setServerError("Missing event ID");
       return;
     }
 
@@ -193,6 +195,7 @@ const CreateEvent = ({ mode = "create" }) => {
 
       if (isEditMode) {
         await updateEvent({
+          id: id!,
           title: title.trim(),
           description: description.trim(),
           date: buildIsoDateTime(),
@@ -218,7 +221,7 @@ const CreateEvent = ({ mode = "create" }) => {
     try {
       setServerError("");
       setIsLoadingEvent(true);
-      await deleteEvent({ id });
+      await deleteEvent(id);
       setIsDeleteModalOpen(false);
       navigate("/");
     } catch (error: unknown) {

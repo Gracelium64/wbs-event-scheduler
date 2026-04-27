@@ -15,6 +15,9 @@ export interface Events {
   organizerEmail: string;
 }
 
+export type CreateEventPayload = Omit<Events, "id" | "organizerEmail">;
+export type UpdateEventPayload = CreateEventPayload & { id: number | string };
+
 export interface EventSectionProps {
   title: string;
   badgeClass: string;
