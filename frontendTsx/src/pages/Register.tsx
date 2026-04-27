@@ -13,7 +13,7 @@ const Register = () => {
   const [nameError, setNameError] = useState("");
   const [serverError, setServerError] = useState("");
 
-  async function handleRegister(e) {
+  async function handleRegister(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
     let valid = true;
@@ -48,8 +48,10 @@ const Register = () => {
     try {
       await registerUser({ email, password, name });
       navigate("/login");
-    } catch (error) {
-      setServerError(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setServerError(error.message);
+      }
     }
   }
 
