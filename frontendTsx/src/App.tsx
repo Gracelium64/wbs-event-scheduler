@@ -29,10 +29,10 @@ function App() {
               <Route index element={<Home />} />
               <Route path="login" element={<LogIn />} />
               <Route path="register" element={<Register />} />
-              <Route path="about" element={<About />} />
+              {/* <Route path="about" element={<About />} /> */}
               <Route
                 path="events/:eventId"
-                element={<EventPage mode="view" />}
+                // element={<EventPage mode="view" />}
               />
               <Route path="*" element={<NotFound />} />
               <Route element={<ProtectedRoute />}>
