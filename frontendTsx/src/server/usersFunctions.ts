@@ -1,7 +1,8 @@
 import { getToken } from "./tokenFunction.js";
 import { API_BASE_URL } from "./config.js";
+import type { User } from "../interfaces/index.js";
 
-export async function getAllUsers({ page, limit }) {
+export async function getAllUsers(page: number, limit: number) {
   const response = await fetch(
     `${API_BASE_URL}/users?page=${page}&limit=${limit}`,
     {
@@ -19,7 +20,7 @@ export async function getAllUsers({ page, limit }) {
 
 // const users = await getAllUsers({ page: 1, limit: 10 });
 
-export async function getUserById(id) {
+export async function getUserById(id: User) {
   const response = await fetch(`${API_BASE_URL}/users/${id}`, {
     method: "GET",
   });
@@ -34,7 +35,7 @@ export async function getUserById(id) {
 
 // const user = await getUserById(id);
 
-export async function updateUser({ id, email, password, name }) {
+export async function updateUser({ id, email, password, name }: User) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/users/${id}`, {
     method: "PUT",
@@ -55,7 +56,7 @@ export async function updateUser({ id, email, password, name }) {
 
 // await updateUser({ id, email, password, name });
 
-export async function deleteUser({ id }) {
+export async function deleteUser(id: User) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/users/${id}`, {
     method: "DELETE",

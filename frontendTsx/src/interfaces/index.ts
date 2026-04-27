@@ -22,3 +22,10 @@ export interface EventSectionProps {
   items: Events[];
   emptyLabel: string;
 }
+
+export interface User {
+  id: number | string;
+  name: string;
+  email: string;
+  password: string;
+}
