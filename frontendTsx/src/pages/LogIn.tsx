@@ -4,8 +4,10 @@ import { loginUser } from "../server/authFunctions";
 import { useState } from "react";
 
 const LogIn = () => {
+  const auth = useAuth();
+  if (!auth) throw new Error("useAuth error Login.tsx");
+  const { setIsLoggedIn } = auth;
   const navigate = useNavigate();
-  const { setIsLoggedIn } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,7 +15,7 @@ const LogIn = () => {
   const [passwordError, setPasswordError] = useState("");
   const [serverError, setServerError] = useState("");
 
-  async function handleLogIn(e) {
+  async function handleLogIn(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
     let valid = true;
