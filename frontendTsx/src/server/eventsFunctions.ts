@@ -6,11 +6,13 @@ import { API_BASE_URL } from "./config.js";
 import type { Events } from "../interfaces";
 
 export async function addEvent({
+  id,
   title,
   description,
   date,
   location,
   organizerId,
+  organizerEmail,
 }: Events) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events`, {
@@ -80,14 +82,15 @@ export async function getEventById(id: Events) {
 
 // const event = await getEventById(id);
 
-export async function updateEvent(
-  {title,
+export async function updateEvent({
+  title,
   description,
   date,
   location,
   organizerId,
-  id}: Events
-) {
+  id,
+  organizerEmail,
+}: Events) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "PUT",

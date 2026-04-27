@@ -24,8 +24,8 @@ export interface EventSectionProps {
 }
 
 export interface User {
-  id: number | string;
-  name: string;
-  email: string;
-  password: string;
+  id?: number | string;
+  name?: string;
+  email?: string;
+  password?: string;
 }

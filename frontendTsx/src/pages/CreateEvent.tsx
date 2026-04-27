@@ -192,13 +192,13 @@ const CreateEvent = ({ mode = "create" }) => {
       }
 
       if (isEditMode) {
-        await updateEvent(
-          title.trim(),
-          description.trim(),
-          buildIsoDateTime(),
-          location.trim(),
-          currentUserId,
-        );
+        await updateEvent({
+          title: title.trim(),
+          description: description.trim(),
+          date: buildIsoDateTime(),
+          location: location.trim(),
+          organizerId: currentUserId,
+        });
       }
 
       navigate("/");

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { EventCard } from '../components';
+import { useEffect, useState } from "react";
+import { EventCard } from "../components";
 
-import { getAllEvents } from '../server/eventsFunctions';
+import { getAllEvents } from "../server/eventsFunctions";
 
 const Home = () => {
   const [events, setEvents] = useState([]);
@@ -13,7 +13,7 @@ const Home = () => {
         const data = await getAllEvents();
         setEvents(data?.results || []);
       } catch (error) {
-        console.error('Error fetching events:', error);
+        console.error("Error fetching events:", error);
       } finally {
         setLoading(false);
       }
