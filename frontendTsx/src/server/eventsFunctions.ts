@@ -3,6 +3,7 @@
 
 import { getToken } from "./tokenFunction.js";
 import { API_BASE_URL } from "./config.js";
+import type { Events } from "../interfaces";
 
 export async function addEvent({
   title,
@@ -10,7 +11,7 @@ export async function addEvent({
   date,
   location,
   organizerId,
-}) {
+}: Events) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events`, {
     method: "POST",
@@ -64,7 +65,7 @@ export async function getAllEvents(page: number, limit: number) {
 
 // const events = await getAllEvents({ page, limit });
 
-export async function getEventById(id: Event) {
+export async function getEventById(id: Events) {
   const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "GET",
   });
@@ -80,12 +81,12 @@ export async function getEventById(id: Event) {
 // const event = await getEventById(id);
 
 export async function updateEvent(
-  title: string,
-  description: string,
-  date: string,
-  location: string,
-  organizerId: string | number,
-  id?: string | number,
+  {title,
+  description,
+  date,
+  location,
+  organizerId,
+  id}: Events
 ) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events/${id}`, {
@@ -113,7 +114,7 @@ export async function updateEvent(
 
 // await updateEvent({ id, title, description, date, location })
 
-export async function deleteEvent(id: Event) {
+export async function deleteEvent(id: Events) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "DELETE",
