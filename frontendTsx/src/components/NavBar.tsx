@@ -1,14 +1,14 @@
-import { logoutUser } from '../server/authFunctions';
-import { useNavigate } from 'react-router';
+import { logoutUser } from "../server/authFunctions";
+import { useNavigate } from "react-router";
 
-import { useAuth } from '../context/useAuth';
+import { useAuth } from "../context/useAuth";
 
 const NavBar = () => {
   const { isLoggedIn, setIsLoggedIn } = useAuth();
   const navigate = useNavigate();
 
   function handleLogout() {
-    navigate('/');
+    navigate("/");
     logoutUser();
     setIsLoggedIn(false);
   }
@@ -20,7 +20,7 @@ const NavBar = () => {
           <button
             type="button"
             className="btn btn-ghost px-4 py-2 rounded border mt-4  hover:bg-primary transition-colors duration-300 ease-in-out"
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
           >
             Home Page
           </button>
@@ -29,7 +29,7 @@ const NavBar = () => {
           <button
             type="button"
             className="btn btn-ghost px-4 py-2 rounded border mt-4  hover:bg-secondary transition-colors duration-300 ease-in-out"
-            onClick={() => navigate('/createEvent')}
+            onClick={() => navigate("/createEvent")}
           >
             Add Event
           </button>
@@ -47,7 +47,7 @@ const NavBar = () => {
             <button
               type="button"
               className="btn btn-ghost px-4 py-2 rounded border mt-4  hover:bg-purple-900 transition-colors duration-300 ease-in-out"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate("/login")}
             >
               LOG IN
             </button>

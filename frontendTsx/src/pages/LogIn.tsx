@@ -5,8 +5,7 @@ import { useState } from "react";
 
 const LogIn = () => {
   const navigate = useNavigate();
-  const auth = useAuth();
-  const { setIsLoggedIn } = auth || {};
+  const { setIsLoggedIn } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -1,18 +1,18 @@
-import { getToken } from './tokenFunction.js';
-import { API_BASE_URL } from './config.js';
+import { getToken } from "./tokenFunction.js";
+import { API_BASE_URL } from "./config.js";
 
 export async function registerUser({ email, password, name }) {
   const response = await fetch(`${API_BASE_URL}/users`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ email, password, name }),
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Registration failed');
+    throw new Error(error.message || "Registration failed");
   }
 
   return response.json();
@@ -25,9 +25,9 @@ export async function registerUser({ email, password, name }) {
 
 export async function loginUser({ email, password }) {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ email, password }),
   });
@@ -52,7 +52,7 @@ export async function loginUser({ email, password }) {
 export async function getLoggedUser() {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/auth/profile`, {
-    method: 'GET',
+    method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -60,7 +60,7 @@ export async function getLoggedUser() {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'No logged in user found');
+    throw new Error(error.message || "No logged in user found");
   }
 
   return response.json();
@@ -69,8 +69,8 @@ export async function getLoggedUser() {
 // const loggedUser = await getLoggedUser();
 
 export function logoutUser() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('userId');
+  localStorage.removeItem("token");
+  localStorage.removeItem("userId");
 }
 
 // function handleLogout() {
