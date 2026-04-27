@@ -3,18 +3,25 @@ import { useNavigate } from "react-router";
 import { getAllEvents } from "../server/eventsFunctions";
 import { getUserById } from "../server/usersFunctions";
 import { getLoggedUser } from "../server/authFunctions";
+import type { EventSectionProps, Event } from "../interfaces";
 
 const EVENTS_PAGE = 1;
 const EVENTS_LIMIT = 100;
 
 const Home = () => {
   const navigate = useNavigate();
-  const [events, setEvents] = useState([]);
-  const [organizerById, setOrganizerById] = useState({});
-  const [isLoadingOrganizers, setIsLoadingOrganizers] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [currentUserId, setCurrentUserId] = useState(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [organizerById, setOrganizerById] = useState<
+    Record<string, string | null>
+  >({});
+  const [isLoadingOrganizers, setIsLoadingOrganizers] =
+    useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [currentUserId, setCurrentUserId] = useState<string | number | null>(
+    null,
+  );
 
   useEffect(() => {
     async function loadEvents() {
@@ -22,15 +29,12 @@ const Home = () => {
         setIsLoading(true);
         setError("");
 
-        const data = await getAllEvents({
-          page: EVENTS_PAGE,
-          limit: EVENTS_LIMIT,
-        });
+        const data = await getAllEvents(EVENTS_PAGE, EVENTS_LIMIT);
         const eventList = data?.results ?? [];
         setEvents(eventList);
 
         const organizerIds = [
-          ...new Set(eventList.map((event) => event.organizerId)),
+          ...new Set(eventList.map((event: Event) => event.organizerId)),
         ].filter((id) => id !== null && id !== undefined);
 
         if (!organizerIds.length) {
@@ -66,8 +70,10 @@ const Home = () => {
           setOrganizerById(Object.fromEntries(organizerEntries));
           setIsLoadingOrganizers(false);
         }
-      } catch (loadError) {
-        setError(loadError.message || "Failed to load events");
+      } catch (loadError: unknown) {
+        if (loadError instanceof Error) {
+          setError(loadError.message || "Failed to load events");
+        }
       } finally {
         setIsLoading(false);
       }
@@ -95,8 +101,8 @@ const Home = () => {
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
 
-    const upcoming = [];
-    const past = [];
+    const upcoming: Event[] = [];
+    const past: Event[] = [];
 
     sorted.forEach((event) => {
       const eventDate = new Date(event.date);
@@ -113,7 +119,7 @@ const Home = () => {
     };
   }, [events]);
 
-  function formatDateTime(value) {
+  function formatDateTime(value: undefined | string): string {
     if (!value) return "No time set";
     const parsed = new Date(value);
     if (Number.isNaN(parsed.getTime())) return "Invalid date";
@@ -127,7 +133,7 @@ const Home = () => {
     });
   }
 
-  function formatNameFromEmail(email) {
+  function formatNameFromEmail(email: string): string | null {
     if (!email) return null;
     const local = String(email).split("@")[0] || "";
     const parts = local.split(/[._\-+ ]+/).filter(Boolean);
@@ -137,7 +143,10 @@ const Home = () => {
       .join(" ");
   }
 
-  function getOrganizerName(organizerId, event) {
+  function getOrganizerName(
+    organizerId: string | number,
+    event: Event | null,
+  ): string | null {
     const name = organizerById[organizerId];
     if (name) return name;
     if (isLoadingOrganizers && organizerId) return null; // signal loading
@@ -145,7 +154,13 @@ const Home = () => {
     return "Unknown organizer";
   }
 
-  function EventSection({ title, badgeClass, cardClass, items, emptyLabel }) {
+  function EventSection({
+    title,
+    badgeClass,
+    cardClass,
+    items,
+    emptyLabel,
+  }: EventSectionProps) {
     return (
       <section className="space-y-4">
         <div className="flex items-center gap-3">
@@ -190,7 +205,7 @@ const Home = () => {
                     </li>
                     <li>
                       <span className="font-semibold">Event organizer:</span>{" "}
-                      {getOrganizerName(event.organizerId)}
+                      {getOrganizerName(event.organizerId, event)}
                     </li>
                   </ul>
 
@@ -231,21 +246,21 @@ const Home = () => {
 
       {!error && (
         <>
-          <EventSection
-            title="Coming Up"
-            badgeClass="badge-primary"
-            cardClass="bg-base-100"
-            items={upcomingEvents}
-            emptyLabel="No upcoming events yet."
-          />
+          {EventSection({
+            title: "Coming Up",
+            badgeClass: "badge-primary",
+            cardClass: "bg-base-100",
+            items: upcomingEvents,
+            emptyLabel: "No upcoming events yet.",
+          })}
 
-          <EventSection
-            title="Past Events"
-            badgeClass="badge-neutral"
-            cardClass="bg-base-200/50"
-            items={pastEvents}
-            emptyLabel="No past events yet."
-          />
+          {EventSection({
+            title: "Past Events",
+            badgeClass: "badge-neutral",
+            cardClass: "bg-base-200/50",
+            items: pastEvents,
+            emptyLabel: "No past events yet.",
+          })}
         </>
       )}
     </div>
