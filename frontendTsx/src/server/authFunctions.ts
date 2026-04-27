@@ -1,7 +1,8 @@
 import { getToken } from "./tokenFunction.js";
 import { API_BASE_URL } from "./config.js";
+import type { User } from "../interfaces/index.js";
 
-export async function registerUser({ email, password, name }) {
+export async function registerUser({ email, password, name }: User) {
   const response = await fetch(`${API_BASE_URL}/users`, {
     method: "POST",
     headers: {
@@ -23,7 +24,7 @@ export async function registerUser({ email, password, name }) {
 //   name: "Jane Doe",
 // });
 
-export async function loginUser({ email, password }) {
+export async function loginUser({ email, password }: User) {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: {
