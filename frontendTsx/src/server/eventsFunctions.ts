@@ -64,7 +64,7 @@ export async function getAllEvents(page: number, limit: number) {
 
 // const events = await getAllEvents({ page, limit });
 
-export async function getEventById(id) {
+export async function getEventById(id: Event) {
   const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "GET",
   });
@@ -113,7 +113,7 @@ export async function updateEvent(
 
 // await updateEvent({ id, title, description, date, location })
 
-export async function deleteEvent({ id }) {
+export async function deleteEvent(id: Event) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/events/${id}`, {
     method: "DELETE",
