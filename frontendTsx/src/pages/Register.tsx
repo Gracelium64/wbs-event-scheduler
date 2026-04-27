@@ -5,13 +5,13 @@ import { useState } from "react";
 const Register = () => {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [nameError, setNameError] = useState("");
-  const [serverError, setServerError] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [emailError, setEmailError] = useState<string | null>("");
+  const [passwordError, setPasswordError] = useState<string | null>("");
+  const [nameError, setNameError] = useState<string | null>("");
+  const [serverError, setServerError] = useState<string | null>("");
 
   async function handleRegister(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
