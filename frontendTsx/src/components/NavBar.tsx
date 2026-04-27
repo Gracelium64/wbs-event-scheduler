@@ -4,7 +4,7 @@ import { useAuth } from "../context/useAuth";
 
 const NavBar = () => {
   const auth = useAuth();
-  if (!auth) throw new Error("useAuth must be used within an AuthProvider");
+  if (!auth) throw new Error("useAuth error NavBar.tsx");
   const { isLoggedIn, setIsLoggedIn } = auth;
   const navigate = useNavigate();
 

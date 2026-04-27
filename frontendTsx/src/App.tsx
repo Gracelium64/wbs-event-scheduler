@@ -15,7 +15,9 @@ import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/useAuth";
 
 const ProtectedRoute = () => {
-  const { isLoggedIn } = useAuth();
+  const auth = useAuth();
+  if (!auth) throw new Error("useAuth error App.tsx");
+  const { isLoggedIn } = auth;
   return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
