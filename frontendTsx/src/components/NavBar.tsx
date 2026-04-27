@@ -3,7 +3,9 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../context/useAuth";
 
 const NavBar = () => {
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const auth = useAuth();
+  if (!auth) throw new Error("useAuth must be used within an AuthProvider");
+  const { isLoggedIn, setIsLoggedIn } = auth;
   const navigate = useNavigate();
 
   function handleLogout() {
