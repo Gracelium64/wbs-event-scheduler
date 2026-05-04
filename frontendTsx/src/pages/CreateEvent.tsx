@@ -7,7 +7,7 @@ import {
   updateEvent,
   deleteEvent,
 } from "../server/eventsFunctions";
-import type { Events } from "../interfaces";
+import type { Events } from "../schemas";
 
 const CreateEvent = ({ mode = "create" }) => {
   const navigate = useNavigate();

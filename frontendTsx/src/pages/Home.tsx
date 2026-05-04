@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { getAllEvents } from "../server/eventsFunctions";
 import { getUserById } from "../server/usersFunctions";
 import { getLoggedUser } from "../server/authFunctions";
-import type { EventSectionProps, Events } from "../interfaces";
+import type { EventSectionProps, Events } from "../schemas";
 
 const EVENTS_PAGE = 1;
 const EVENTS_LIMIT = 100;
@@ -48,20 +48,7 @@ const Home = () => {
               try {
                 const user = await getUserById(organizerId);
 
-                const nameCandidates = [
-                  user?.name,
-                  user?.data?.name,
-                  user?.User?.name,
-                  user?.user?.name,
-                  user?.profile?.name,
-                  user?.email,
-                  user?.data?.email,
-                ];
-
-                const resolved = nameCandidates.find(
-                  (v) => v && String(v).trim(),
-                );
-
+                const resolved = user?.name ?? user?.email ?? null;
                 return [organizerId, resolved ? String(resolved).trim() : null];
               } catch {
                 return [organizerId, null];

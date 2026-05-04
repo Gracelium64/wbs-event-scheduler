@@ -14,10 +14,10 @@ export const EventsSchema = z.object({
   description: z.string().optional(),
   date: z.string(),
   location: z.string(),
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
+  latitude: z.number().nullish(),
+  longitude: z.number().nullish(),
   organizerId: z.union([z.number(), z.string()]),
-  organizerEmail: z.string(),
+  organizerEmail: z.string().optional(),
 });
 
 export type Events = z.infer<typeof EventsSchema>;
@@ -36,7 +36,7 @@ export type EventSectionProps = z.infer<typeof EventSectionPropsSchema>;
 
 export const UserSchema = z.object({
   id: z.union([z.number(), z.string()]).optional(),
-  name: z.string().optional(),
+  name: z.string().nullish(),
   email: z.string().optional(),
   password: z.string().optional(),
 });
