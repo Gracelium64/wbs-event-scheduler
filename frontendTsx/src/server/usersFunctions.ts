@@ -1,6 +1,11 @@
 import { getToken } from "./tokenFunction.js";
 import { API_BASE_URL } from "./config.js";
-import type { User } from "../interfaces/index.js";
+import {
+  PaginatedUsersSchema,
+  UserSchema,
+  type User,
+} from "../schemas/index.js";
+import { z } from "zod/v4";
 
 export async function getAllUsers(page: number, limit: number) {
   const response = await fetch(
@@ -15,12 +20,15 @@ export async function getAllUsers(page: number, limit: number) {
     throw new Error(error.message || "Nope. Nope nope nope");
   }
 
-  return response.json();
+  const resData = await response.json();
+  const { data, error, success } = PaginatedUsersSchema.safeParse(resData);
+  if (!success) throw new Error(z.prettifyError(error));
+  return data;
 }
 
 // const users = await getAllUsers({ page: 1, limit: 10 });
 
-export async function getUserById(id: User) {
+export async function getUserById(id: number | string) {
   const response = await fetch(`${API_BASE_URL}/users/${id}`, {
     method: "GET",
   });
@@ -30,7 +38,10 @@ export async function getUserById(id: User) {
     throw new Error(error.message || "No user found");
   }
 
-  return response.json();
+  const resData = await response.json();
+  const { data, error, success } = UserSchema.safeParse(resData);
+  if (!success) throw new Error(z.prettifyError(error));
+  return data;
 }
 
 // const user = await getUserById(id);
@@ -51,12 +62,15 @@ export async function updateUser({ id, email, password, name }: User) {
     throw new Error(error.message || "Updating user details failed");
   }
 
-  return response.json();
+  const resData = await response.json();
+  const { data, error, success } = UserSchema.safeParse(resData);
+  if (!success) throw new Error(z.prettifyError(error));
+  return data;
 }
 
 // await updateUser({ id, email, password, name });
 
-export async function deleteUser(id: User) {
+export async function deleteUser(id: number | string) {
   const token = getToken();
   const response = await fetch(`${API_BASE_URL}/users/${id}`, {
     method: "DELETE",

@@ -44,11 +44,11 @@ const LogIn = () => {
     try {
       const {
         token,
-        user: { id, validatedEmail },
+        user: { id, email: userEmail },
       } = await loginUser({ email, password });
       localStorage.setItem("token", token);
-      localStorage.setItem("userId", id);
-      localStorage.setItem("validatedEmail", validatedEmail);
+      localStorage.setItem("userId", String(id));
+      localStorage.setItem("userEmail", userEmail);
       setIsLoggedIn(true);
       navigate("/");
     } catch {

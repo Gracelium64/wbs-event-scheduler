@@ -1,6 +1,15 @@
 import { getToken } from "./tokenFunction.js";
 import { API_BASE_URL } from "./config.js";
-import type { User } from "../interfaces/index.js";
+import {
+  UserSchema,
+  LoginResponseSchema,
+  type User,
+} from "../schemas/index.js";
+// import { useState } from "react";
+import { z } from "zod/v4";
+
+// const [error, setError] = useState<string | null>(null);
+// const [loading, setLodaing] = useState(false);
 
 export async function registerUser({ email, password, name }: User) {
   const response = await fetch(`${API_BASE_URL}/users`, {
@@ -16,7 +25,10 @@ export async function registerUser({ email, password, name }: User) {
     throw new Error(error.message || "Registration failed");
   }
 
-  return response.json();
+  const resData = await response.json();
+  const { data, error, success } = UserSchema.safeParse(resData);
+  if (!success) throw new Error(z.prettifyError(error));
+  return data;
 }
 // await registerUser({
 //   email: "test@test.com",
@@ -40,9 +52,12 @@ export async function loginUser({ email, password }: User) {
         "User or password don't match (have fun figuring which one out)",
     );
   }
-
-  return response.json();
+  const resData = await response.json();
+  const { data, error, success } = LoginResponseSchema.safeParse(resData);
+  if (!success) throw new Error(z.prettifyError(error));
+  return data;
 }
+
 // function handleLogIn({ email, password }) {
 //   const { token } = await loginUser({ email, password });
 //   localStorage.setItem("token", token);
@@ -64,7 +79,10 @@ export async function getLoggedUser() {
     throw new Error(error.message || "No logged in user found");
   }
 
-  return response.json();
+  const resData = await response.json();
+  const { data, error, success } = UserSchema.safeParse(resData);
+  if (!success) throw new Error(z.prettifyError(error));
+  return data;
 }
 
 // const loggedUser = await getLoggedUser();
