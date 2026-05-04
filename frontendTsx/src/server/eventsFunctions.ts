@@ -6,7 +6,7 @@ import { API_BASE_URL } from "./config.js";
 import type {
   CreateEventPayload,
   UpdateEventPayload,
-} from "../interfaces/index.js";
+} from "../schemas/index.js";
 
 export async function addEvent({
   title,

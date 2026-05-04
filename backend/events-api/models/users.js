@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
-import { DataTypes } from "sequelize";
+import SequelizePkg from "sequelize";
+const { DataTypes } = SequelizePkg;
 
 export default (sequelize) => {
   const User = sequelize.define(
@@ -72,7 +73,7 @@ export default (sequelize) => {
           if (where?.email) where.email = where.email.toLowerCase();
         },
       },
-    }
+    },
   );
 
   return User;

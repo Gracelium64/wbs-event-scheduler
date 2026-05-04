@@ -1,6 +1,6 @@
 import { getToken } from "./tokenFunction.js";
 import { API_BASE_URL } from "./config.js";
-import type { User } from "../interfaces/index.js";
+import type { User } from "../schemas/index.js";
 
 export async function getAllUsers(page: number, limit: number) {
   const response = await fetch(

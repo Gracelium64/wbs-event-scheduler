@@ -1,4 +1,5 @@
-import { Sequelize, DataTypes } from "sequelize";
+import SequelizePkg from "sequelize";
+const { Sequelize } = SequelizePkg;
 
 import UserModel from "./models/users.js";
 import EventModel from "./models/events.js";

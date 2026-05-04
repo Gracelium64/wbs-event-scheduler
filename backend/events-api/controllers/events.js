@@ -1,4 +1,5 @@
-import { Op } from "sequelize";
+import SequelizePkg from "sequelize";
+const { Op } = SequelizePkg;
 import { asyncWrapper } from "../utils/asyncWrapper.js";
 import { Event } from "../db.js";
 
