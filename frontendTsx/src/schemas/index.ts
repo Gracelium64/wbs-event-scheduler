@@ -62,3 +62,13 @@ export const PaginatedEventsSchema = z.object({
   results: z.array(EventsSchema),
 });
 export type PaginatedEvents = z.infer<typeof PaginatedEventsSchema>;
+
+export const PaginatedUsersSchema = z.object({
+  totalCount: z.number(),
+  totalPages: z.number(),
+  currentPage: z.number(),
+  hasNextPage: z.boolean(),
+  hasPreviousPage: z.boolean(),
+  results: z.array(UserSchema),
+});
+export type PaginatedUsers = z.infer<typeof PaginatedUsersSchema>;
