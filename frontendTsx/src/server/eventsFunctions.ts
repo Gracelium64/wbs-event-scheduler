@@ -3,10 +3,13 @@
 
 import { getToken } from "./tokenFunction.js";
 import { API_BASE_URL } from "./config.js";
-import type {
-  CreateEventPayload,
-  UpdateEventPayload,
+import {
+  EventsSchema,
+  PaginatedEventsSchema,
+  type CreateEventPayload,
+  type UpdateEventPayload,
 } from "../schemas/index.js";
+import { z } from "zod/v4";
 
 export async function addEvent({
   title,
@@ -35,8 +38,10 @@ export async function addEvent({
     const error = await response.json();
     throw new Error(error.message || "Failed to add an event");
   }
-
-  return response.json();
+  const resData = await response.json();
+  const { data, error, success } = EventsSchema.safeParse(resData);
+  if (!success) throw new Error(z.prettifyError(error));
+  return data;
 }
 
 // await addEvent({ title, description, date, location });
@@ -63,7 +68,10 @@ export async function getAllEvents(page: number, limit: number) {
     throw new Error(error.message || "No events found");
   }
 
-  return response.json();
+  const resData = await response.json();
+  const { data, error, success } = PaginatedEventsSchema.safeParse(resData);
+  if (!success) throw new Error(z.prettifyError(error));
+  return data;
 }
 
 // const events = await getAllEvents({ page, limit });
@@ -78,7 +86,10 @@ export async function getEventById(id: number | string) {
     throw new Error(error.message || "Event not found");
   }
 
-  return response.json();
+  const resData = await response.json();
+  const { data, error, success } = EventsSchema.safeParse(resData);
+  if (!success) throw new Error(z.prettifyError(error));
+  return data;
 }
 
 // const event = await getEventById(id);
@@ -112,7 +123,10 @@ export async function updateEvent({
     throw new Error(error.message || "Failed to update event");
   }
 
-  return response.json();
+  const resData = await response.json();
+  const { data, error, success } = EventsSchema.safeParse(resData);
+  if (!success) throw new Error(z.prettifyError(error));
+  return data;
 }
 
 // await updateEvent({ id, title, description, date, location })
@@ -146,7 +160,10 @@ export async function getUpcomingEvents() {
     throw new Error(error.message || "Failed to retrieve upcoming events");
   }
 
-  return response.json();
+  const resData = await response.json();
+  const { data, error, success } = z.array(EventsSchema).safeParse(resData);
+  if (!success) throw new Error(z.prettifyError(error));
+  return data;
 }
 
 // const upcomingEvents = await getUpcomingEvents();

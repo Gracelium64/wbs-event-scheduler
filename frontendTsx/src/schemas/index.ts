@@ -42,3 +42,23 @@ export const UserSchema = z.object({
 });
 
 export type User = z.infer<typeof UserSchema>;
+
+export const LoginResponseSchema = z.object({
+  user: z.object({
+    id: z.union([z.number(), z.string()]),
+    email: z.string(),
+  }),
+  token: z.string(),
+});
+
+export type LoginResponseType = z.infer<typeof LoginResponseSchema>;
+
+export const PaginatedEventsSchema = z.object({
+  totalCount: z.number(),
+  totalPages: z.number(),
+  currentPage: z.number(),
+  hasNextPage: z.boolean(),
+  hasPreviousPage: z.boolean(),
+  results: z.array(EventsSchema),
+});
+export type PaginatedEvents = z.infer<typeof PaginatedEventsSchema>;
